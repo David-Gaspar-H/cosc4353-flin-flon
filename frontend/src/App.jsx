@@ -4,6 +4,7 @@ import Admin from "./components/Admin";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import UserTable from "./components/UserTabel.jsx";
 import User from "./components/User.jsx";
+import Register from "./components/Register.jsx";
 
 function App() {
 	return (
@@ -19,7 +20,7 @@ function App() {
 					<Route path="/users" element={<UserTable />} />
 				</Routes>
 				<Routes>
-					<Route path="/user" element={<User />} />
+					<Route path="/register" element={<Register />} />
 				</Routes>
 			</Router>
 		</>

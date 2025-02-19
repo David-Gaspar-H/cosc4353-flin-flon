@@ -1,35 +1,30 @@
 import React, {useState} from 'react';
-import {FormControl, TextField, InputLabel, Select, MenuItem, Button, Paper, Typography} from '@mui/material';
+import {FormControl, TextField, InputLabel, Select, MenuItem, Button, Paper} from '@mui/material';
 
-const UserForm = ({userID, setSelectedUserId}) => {
-    const [user, setUserData] = useState({
+const Register = () => {
+    const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: '',
         username: '',
         password: '',
-        role: '',
-        status: 0, // Active by default
     });
 
     const handleInputChange = (e) => {
         const {name, value} = e.target;
-        setUserData({
-            ...user,
+        setFormData({
+            ...formData,
             [name]: value,
         });
     };
 
     const handleSubmit = () => {
         // Handle form submission logic
-        console.log(user);
+        console.log(formData);
     };
 
     return (
         <Paper sx={{width: '500px', padding: 3}}>
-            <Typography variant="h4" gutterBottom>
-                {userID ? 'Edit User' : 'User Form'}
-            </Typography>
             <FormControl fullWidth margin={"normal"}>
                 <TextField
                     label="First Name"
@@ -37,7 +32,7 @@ const UserForm = ({userID, setSelectedUserId}) => {
                     fullWidth
                     margin="normal"
                     name="firstName"
-                    value={user.firstName}
+                    value={formData.firstName}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -46,7 +41,7 @@ const UserForm = ({userID, setSelectedUserId}) => {
                     fullWidth
                     margin="normal"
                     name="lastName"
-                    value={user.lastName}
+                    value={formData.lastName}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -55,7 +50,7 @@ const UserForm = ({userID, setSelectedUserId}) => {
                     fullWidth
                     margin="normal"
                     name="email"
-                    value={user.email}
+                    value={formData.email}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -64,7 +59,7 @@ const UserForm = ({userID, setSelectedUserId}) => {
                     fullWidth
                     margin="normal"
                     name="username"
-                    value={user.username}
+                    value={formData.username}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -74,35 +69,19 @@ const UserForm = ({userID, setSelectedUserId}) => {
                     margin="normal"
                     name="password"
                     type="password"
-                    value={user.password}
+                    value={formData.password}
                     onChange={handleInputChange}
                 />
-                <FormControl fullWidth margin={"normal"}>
-                    <InputLabel id="role-label">Role</InputLabel>
-                    <Select
-                        labelId="role-label"
-                        id="role"
-                        value={user.role}
-                        label="Role"
-                        onChange={(e) => setUserData({...user, role: e.target.role})}
-                    >
-                        <MenuItem value={0}>Admin</MenuItem>
-                        <MenuItem value={1}>User</MenuItem>
-                    </Select>
-                </FormControl>
-                <FormControl fullWidth margin={"normal"}>
-                    <InputLabel id="status-label">Status</InputLabel>
-                    <Select
-                        labelId="status-label"
-                        id="status"
-                        value={user.status}
-                        label="Status"
-                        onChange={(e) => setUserData({...user, status: e.target.value})}
-                    >
-                        <MenuItem value={0}>Active</MenuItem>
-                        <MenuItem value={1}>Inactive</MenuItem>
-                    </Select>
-                </FormControl>
+                <TextField
+                    label="Re-enter Password"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                />
                 <Button variant="contained" onClick={handleSubmit} sx={{ marginTop: 2, width: 'auto' }}>
                     Submit
                 </Button>
@@ -111,4 +90,4 @@ const UserForm = ({userID, setSelectedUserId}) => {
     );
 };
 
-export default UserForm;
+export default Register;
