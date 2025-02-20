@@ -1,36 +1,33 @@
 import { useState } from "react";
 import { TextField, Button, Typography, Grid2, Paper } from "@mui/material";
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api'
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 const Login = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault(); 
-        
-        try {
-            const response = await api.post('/login/', {
-                username: username,
-                password: password
-            });
-            
-            console.log('User Info:', response.data);
-			if(response.data.user.role != "admin"){
-            	navigate('/dashboard');
+	const handleLogin = async (e) => {
+		e.preventDefault();
+
+		try {
+			const response = await api.post("/login/", {
+				username: username,
+				password: password,
+			});
+
+			if (response.data.user.role != "admin") {
+				navigate("/dashboard");
+			} else {
+				navigate("/users");
 			}
-			else{
-            	navigate('/users');
-			}
-            
-        } catch (error) {
-            console.error('Login failed:', error);
-        }
-    };
+		} catch (error) {
+			console.error("Login failed:", error);
+		}
+	};
 
 	const handleRegister = () => {
-		navigate('/register');
+		navigate("/register");
 	};
 
 	return (

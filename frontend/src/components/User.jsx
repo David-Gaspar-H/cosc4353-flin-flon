@@ -17,6 +17,7 @@ const UserForm = ({
 	setSelectedUserId,
 	clearSelection,
 	isCreating,
+	selectedUser,
 	onUserModified,
 }) => {
 	const [user, setUserData] = useState({
@@ -27,23 +28,50 @@ const UserForm = ({
 		password: "",
 		role: "user",
 		status: "active",
-		password: "",
 	});
 
-	useEffect(() => {
-		if (userId && !isCreating) {
-			fetchUserData();
-		}
-	}, [userId]);
+	// useEffect(() => {
+	// 	// Fetch user data if we're editing an existing user
+	// 	if (userId && !isCreating) {
+	// 		fetchUserData();
+	// 	} else {
+	// 		// Clear form data when creating a new user
+	// 		setUserData({
+	// 			first_name: "",
+	// 			last_name: "",
+	// 			email: "",
+	// 			username: "",
+	// 			password: "",
+	// 			role: "user",
+	// 			status: "active",
+	// 		});
+	// 	}
+	// }, [userId, isCreating]); // Depend on userId and isCreating
 
-	const fetchUserData = async () => {
-		try {
-			const response = await api.get(`/users/${userId}/`);
-			setUserData(response.data);
-		} catch (error) {
-			console.error("Error fetching user:", error);
+	// const fetchUserData = async () => {
+	// 	try {
+	// 		const response = await api.get(`/users/${userId}/`);
+	// 		console.log("Fetched user data:", response.data); // Debugging line
+	// 		setUserData(response.data);
+	// 	} catch (error) {
+	// 		console.error("Error fetching user:", error);
+	// 	}
+	// };
+
+	useEffect(() => {
+		console.log("Selected user", selectedUser);
+		if (selectedUser) {
+			setUserData({
+				first_name: selectedUser.first_name,
+				last_name: selectedUser.last_name,
+				email: selectedUser.email,
+				username: selectedUser.username,
+				password: "",
+				role: selectedUser.role,
+				status: selectedUser.status,
+			});
 		}
-	};
+	}, [selectedUser]);
 
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
@@ -56,6 +84,7 @@ const UserForm = ({
 	const handleSubmit = async () => {
 		try {
 			if (isCreating) {
+				// Create new user
 				await api.post("/users/", {
 					first_name: user.first_name,
 					last_name: user.last_name,
@@ -66,6 +95,7 @@ const UserForm = ({
 					status: user.status,
 				});
 			} else {
+				// Update existing user
 				await api.put(`/users/${userId}/`, {
 					first_name: user.first_name,
 					last_name: user.last_name,
@@ -77,8 +107,8 @@ const UserForm = ({
 				});
 			}
 
-			onUserModified();
-			clearSelection();
+			onUserModified(); // Notify parent component to refresh the list
+			clearSelection(); // Clear the selection in parent
 		} catch (error) {
 			console.error("Error saving user:", error);
 		}

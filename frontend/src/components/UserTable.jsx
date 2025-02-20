@@ -98,7 +98,6 @@ const UserTable = () => {
 	};
 
 	const handleUserDelete = () => {
-		console.log("Deactivating user(s):", selectedUsers);
 		setSelectedUsers([]);
 	};
 
@@ -250,7 +249,7 @@ const UserTable = () => {
 					</Button>
 					<User
 						userId={selectedUserId}
-						user={selectedUser}
+						selectedUser={selectedUser}
 						setSelectedUserId={setSelectedUserId}
 						clearSelection={clearSelection}
 						isCreating={isCreating}
