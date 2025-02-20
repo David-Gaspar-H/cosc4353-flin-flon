@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	Paper,
 	Table,
@@ -11,11 +11,12 @@ import {
 	Checkbox,
 	Box,
 	Button,
-	IconButton,
+	CircularProgress,
 	Stack,
+	Typography,
 } from "@mui/material";
 import User from "./User.jsx";
-import users from "./users.js";
+import api from "../services/api.js";
 
 const UserTable = () => {
 	const [selectedUserId, setSelectedUserId] = useState(null);
@@ -23,6 +24,27 @@ const UserTable = () => {
 	const [selectedUsers, setSelectedUsers] = useState([]);
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const [users, setUsers] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+
+	useEffect(() => {
+		fetchUsers();
+	}, []);
+
+	const fetchUsers = async () => {
+		try {
+			setLoading(true);
+			const response = await api.get("/users/");
+			setUsers(response.data);
+			setError(null);
+		} catch (error) {
+			console.error("Error fetching users: ", error);
+			setError("Failed to load users");
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const columns = [
 		{ id: "firstName", label: "First Name", minWidth: 170 },
@@ -67,7 +89,7 @@ const UserTable = () => {
 	};
 
 	const handleUserDelete = () => {
-		console.log("Deleting users:", selectedUsers);
+		console.log("Deactivating user(s):", selectedUsers);
 		setSelectedUsers([]);
 	};
 
@@ -97,6 +119,7 @@ const UserTable = () => {
 						Create New User
 					</Button>
 				)}
+
 				{/* Conditionally render Edit/Delete button on select */}
 				{!selectedUserId && !isCreating && selectedUsers.length > 0 && (
 					<Stack direction="row" spacing={2} ml={1}>
@@ -115,6 +138,7 @@ const UserTable = () => {
 							size="medium"
 							color="secondary"
 							onClick={handleUserDelete}
+							disabled={selectedUsers.length === 0}
 						>
 							Deactivate
 						</Button>
@@ -122,7 +146,15 @@ const UserTable = () => {
 				)}
 			</Box>
 
-			{!selectedUserId && !isCreating ? (
+			{loading ? (
+				<Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+					<CircularProgress />
+				</Box>
+			) : error ? (
+				<Typography color="error" sx={{ p: 3 }}>
+					{error}
+				</Typography>
+			) : !selectedUserId && !isCreating ? (
 				<TableContainer>
 					<Table stickyHeader aria-label="user table">
 						<TableHead>
