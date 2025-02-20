@@ -52,9 +52,9 @@ function Admin(props) {
 
 	const [session, setSession] = React.useState({
 		user: {
-			name: "Bharat Kashyap",
-			email: "bharatkashyap@outlook.com",
-			image: "https://avatars.githubusercontent.com/u/19550456",
+			name: "John Doe",
+			email: "johndoe@outlook.com",
+			image: "https://avatars.githubusercontent.com/u/1955046",
 		},
 	});
 
@@ -63,9 +63,9 @@ function Admin(props) {
 			signIn: () => {
 				setSession({
 					user: {
-						name: "Bharat Kashyap",
-						email: "bharatkashyap@outlook.com",
-						image: "https://avatars.githubusercontent.com/u/19550456",
+						name: "John Doe",
+						email: "johndow@outlook.com",
+						image: "https://avatars.githubusercontent.com/u/1955046",
 					},
 				});
 			},
