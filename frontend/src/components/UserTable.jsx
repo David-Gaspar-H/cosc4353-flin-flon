@@ -47,8 +47,8 @@ const UserTable = () => {
 	};
 
 	const columns = [
-		{ id: "firstName", label: "First Name", minWidth: 170 },
-		{ id: "lastName", label: "Last Name", minWidth: 170 },
+		{ id: "firs_name", label: "First Name", minWidth: 170 },
+		{ id: "last_name", label: "Last Name", minWidth: 170 },
 		{ id: "username", label: "Username", minWidth: 170 },
 		{ id: "email", label: "Email", minWidth: 100 },
 		{ id: "role", label: "Role", minWidth: 100 },
