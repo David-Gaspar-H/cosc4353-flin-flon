@@ -26,7 +26,6 @@ const Login = () => {
             
         } catch (error) {
             console.error('Login failed:', error);
-            // You might want to show an error message to the user here
         }
     };
 
