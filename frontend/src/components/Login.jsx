@@ -1,15 +1,38 @@
 import { useState } from "react";
 import { TextField, Button, Typography, Grid2, Paper } from "@mui/material";
-
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api'
 const Login = () => {
-	const [email, setEmail] = useState("");
+	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const navigate = useNavigate();
 
-	const handleLogin = (e) => {
-		e.preventDefault();
+    const handleLogin = async (e) => {
+        e.preventDefault(); 
+        
+        try {
+            const response = await api.post('/login/', {
+                username: username,
+                password: password
+            });
+            
+            console.log('User Info:', response.data);
+			if(response.data.user.role != "admin"){
+            	navigate('/dashboard');
+			}
+			else{
+            	navigate('/users');
+			}
+            
+        } catch (error) {
+            console.error('Login failed:', error);
+            // You might want to show an error message to the user here
+        }
+    };
+
+	const handleRegister = () => {
+		navigate('/register');
 	};
-
-	const handleForgotPassword = () => {};
 
 	return (
 		<div>
@@ -31,12 +54,12 @@ const Login = () => {
 
 				<form onSubmit={handleLogin}>
 					<TextField
-						label="Email Address"
-						type="email"
+						label="Username"
+						type="username"
 						variant="outlined"
 						fullWidth
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
 						sx={{ marginBottom: 2 }}
 						required
 					/>
@@ -66,10 +89,10 @@ const Login = () => {
 				<Grid2 container justifyContent="center" sx={{ marginTop: 2 }}>
 					<Button
 						color="secondary"
-						onClick={handleForgotPassword}
+						onClick={handleRegister}
 						sx={{ textTransform: "none" }}
 					>
-						Forgot Password?
+						Register
 					</Button>
 				</Grid2>
 			</Paper>
