@@ -14,8 +14,6 @@ import {
 	IconButton,
 	Stack,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import User from "./User.jsx";
 import users from "./users.js";
 
@@ -80,22 +78,32 @@ const UserTable = () => {
 	};
 
 	return (
-		<Paper sx={{ width: "100%", overflow: "hidden" }}>
-			<Box mt={4} mb={4} display="flex" gap={2} alignItems="center">
-				<Button
-					variant="contained"
-					color="primary"
-					onClick={handleCreateUser}
-				>
-					Create New User
-				</Button>
-
+		<Paper
+			sx={{
+				width: "100%",
+				overflow: "hidden",
+				backgroundColor: "transparent",
+				boxShadow: "none",
+			}}
+		>
+			<Box mt={1} mb={1} display="flex" gap={1} justifyContent="flex-end">
+				{!isCreating && !selectedUserId && (
+					<Button
+						variant="contained"
+						color="primary"
+						size="medium"
+						onClick={handleCreateUser}
+					>
+						Create New User
+					</Button>
+				)}
 				{/* Conditionally render Edit/Delete button on select */}
-				{selectedUsers.length > 0 && (
-					<Stack direction="row" spacing={2}>
+				{!selectedUserId && !isCreating && selectedUsers.length > 0 && (
+					<Stack direction="row" spacing={2} ml={1}>
 						{selectedUsers.length === 1 && (
 							<Button
 								variant="contained"
+								size="medium"
 								color="primary"
 								onClick={handleCreateUser}
 							>
@@ -104,10 +112,11 @@ const UserTable = () => {
 						)}
 						<Button
 							variant="contained"
+							size="medium"
 							color="secondary"
 							onClick={handleUserDelete}
 						>
-							Delete
+							Deactivate
 						</Button>
 					</Stack>
 				)}
@@ -193,6 +202,7 @@ const UserTable = () => {
 						color="secondary"
 						onClick={clearSelection}
 						style={{ marginBottom: "10px" }}
+						marginTop={0}
 					>
 						Back to List
 					</Button>

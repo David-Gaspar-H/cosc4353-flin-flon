@@ -28,23 +28,14 @@ const demoTheme = createTheme({
 
 function DemoPageContent({ pathname }) {
 	return (
-		// <Box
-		// 	sx={{
-		// 		py: 4,
-		// 		display: "flex",
-		// 		flexDirection: "column",
-		// 		alignItems: "center",
-		// 		textAlign: "center",
-		// 	}}
-		// >
-		// 	<Typography>Dashboard content for {pathname}</Typography>
-		// </Box>
 		<Box
 			sx={{
 				padding: 4,
+				backgroundColor: "transparent",
+				boxShadow: "none",
 			}}
 		>
-			<Typography variant="h4" align="left" gutterBottom>
+			<Typography variant="h4" align="left" gutterBottom ml={2}>
 				Users
 			</Typography>
 			<UserTable />
@@ -108,6 +99,7 @@ function Admin(props) {
 			window={demoWindow}
 		>
 			<DashboardLayout
+				sx={{ backgroundColor: "transparent" }}
 				slots={{
 					appTitle: CustomTitle,
 				}}
