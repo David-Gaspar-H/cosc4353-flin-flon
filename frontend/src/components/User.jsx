@@ -1,34 +1,77 @@
-import React, {useState} from 'react';
-import {FormControl, TextField, InputLabel, Select, MenuItem, Button, Paper, Typography} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { FormControl, TextField, InputLabel, Select, MenuItem, Button, Paper, Typography } from '@mui/material';
+import api from '../services/api';
 
-const UserForm = ({userID, setSelectedUserId}) => {
+const UserForm = ({ userId, setSelectedUserId, clearSelection, isCreating, onUserModified }) => {
     const [user, setUserData] = useState({
-        firstName: '',
-        lastName: '',
+        first_name: '',
+        last_name: '',
         email: '',
         username: '',
         password: '',
-        role: '',
-        status: 0, // Active by default
+        role: 'user', 
+        status: 'active',
+        password: '' 
     });
 
+    useEffect(() => {
+        if (userId && !isCreating) {
+            fetchUserData();
+        }
+    }, [userId]);
+
+    const fetchUserData = async () => {
+        try {
+            const response = await api.get(`/users/${userId}/`);
+            setUserData(response.data);
+        } catch (error) {
+            console.error('Error fetching user:', error);
+        }
+    };
+
     const handleInputChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         setUserData({
             ...user,
             [name]: value,
         });
     };
 
-    const handleSubmit = () => {
-        // Handle form submission logic
-        console.log(user);
+    const handleSubmit = async () => {
+        try {
+            if (isCreating) {
+                await api.post('/users/', {
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    email: user.email,
+                    username: user.username,
+                    password: user.password,
+                    role: user.role,
+                    status: user.status
+                });
+            } else {
+                await api.put(`/users/${userId}/`, {
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    email: user.email,
+                    username: user.username,
+                    password: user.password,
+                    role: user.role,
+                    status: user.status
+                });
+            }
+            
+            onUserModified();
+            clearSelection();
+        } catch (error) {
+            console.error('Error saving user:', error);
+        }
     };
 
     return (
-        <Paper sx={{width: '500px', padding: 3}}>
+        <Paper sx={{ width: '500px', padding: 3 }}>
             <Typography variant="h4" gutterBottom>
-                {userID ? 'Edit User' : 'User Form'}
+                {isCreating ? 'Create User' : 'Edit User'}
             </Typography>
             <FormControl fullWidth margin={"normal"}>
                 <TextField
@@ -36,8 +79,8 @@ const UserForm = ({userID, setSelectedUserId}) => {
                     variant="outlined"
                     fullWidth
                     margin="normal"
-                    name="firstName"
-                    value={user.firstName}
+                    name="first_name"
+                    value={user.first_name}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -45,8 +88,8 @@ const UserForm = ({userID, setSelectedUserId}) => {
                     variant="outlined"
                     fullWidth
                     margin="normal"
-                    name="lastName"
-                    value={user.lastName}
+                    name="last_name"
+                    value={user.last_name}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -82,12 +125,13 @@ const UserForm = ({userID, setSelectedUserId}) => {
                     <Select
                         labelId="role-label"
                         id="role"
+                        name="role"
                         value={user.role}
                         label="Role"
-                        onChange={(e) => setUserData({...user, role: e.target.role})}
+                        onChange={handleInputChange}
                     >
-                        <MenuItem value={0}>Admin</MenuItem>
-                        <MenuItem value={1}>User</MenuItem>
+                        <MenuItem value="admin">Admin</MenuItem>
+                        <MenuItem value="user">User</MenuItem>
                     </Select>
                 </FormControl>
                 <FormControl fullWidth margin={"normal"}>
@@ -95,16 +139,21 @@ const UserForm = ({userID, setSelectedUserId}) => {
                     <Select
                         labelId="status-label"
                         id="status"
+                        name="status"
                         value={user.status}
                         label="Status"
-                        onChange={(e) => setUserData({...user, status: e.target.value})}
+                        onChange={handleInputChange}
                     >
-                        <MenuItem value={0}>Active</MenuItem>
-                        <MenuItem value={1}>Inactive</MenuItem>
+                        <MenuItem value="active">Active</MenuItem>
+                        <MenuItem value="deactivated">Deactivated</MenuItem>
                     </Select>
                 </FormControl>
-                <Button variant="contained" onClick={handleSubmit} sx={{ marginTop: 2, width: 'auto' }}>
-                    Submit
+                <Button 
+                    variant="contained" 
+                    onClick={handleSubmit} 
+                    sx={{ marginTop: 2, width: 'auto' }}
+                >
+                    {isCreating ? 'Create' : 'Update'}
                 </Button>
             </FormControl>
         </Paper>

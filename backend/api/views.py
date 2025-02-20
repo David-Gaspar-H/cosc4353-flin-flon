@@ -22,9 +22,10 @@ class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-
         user = authenticate(username=username, password=password)
         if user is not None:
+            if user.status != "active":
+                return Response({'error': 'deactivated'}, status=401)
             login(request, user)
             serializer = UserSerializer(user)
             return Response({
