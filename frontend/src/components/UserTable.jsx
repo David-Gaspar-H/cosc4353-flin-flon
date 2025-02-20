@@ -20,6 +20,7 @@ import api from "../services/api.js";
 
 const UserTable = () => {
 	const [selectedUserId, setSelectedUserId] = useState(null);
+	const [selectedUser, setSelectedUser] = useState(null);
 	const [isCreating, setIsCreating] = useState(false);
 	const [selectedUsers, setSelectedUsers] = useState([]);
 	const [page, setPage] = useState(0);
@@ -47,8 +48,8 @@ const UserTable = () => {
 	};
 
 	const columns = [
-		{ id: "firstName", label: "First Name", minWidth: 170 },
-		{ id: "lastName", label: "Last Name", minWidth: 170 },
+		{ id: "first_name", label: "First Name", minWidth: 170 },
+		{ id: "last_name", label: "Last Name", minWidth: 170 },
 		{ id: "username", label: "Username", minWidth: 170 },
 		{ id: "email", label: "Email", minWidth: 100 },
 		{ id: "role", label: "Role", minWidth: 100 },
@@ -78,13 +79,21 @@ const UserTable = () => {
 
 	const handleCreateUser = () => {
 		setSelectedUserId(null);
+		setSelectedUser(null);
 		setIsCreating(true);
 	};
 
 	const handleUserUpdate = () => {
 		if (selectedUsers.length === 1) {
-			setSelectedUserId(selectedUsers[0]);
+			const userId = selectedUsers[0];
+			setSelectedUserId(userId);
 			setIsCreating(false);
+
+			// Fetch the user details by userID
+			const userToUpdate = users.find((user) => user.id === userId);
+			if (userToUpdate) {
+				setSelectedUser(userToUpdate);
+			}
 		}
 	};
 
@@ -95,6 +104,7 @@ const UserTable = () => {
 
 	const clearSelection = () => {
 		setSelectedUserId(null);
+		setSelectedUser(null);
 		setIsCreating(false);
 		setSelectedUsers([]);
 	};
@@ -128,7 +138,7 @@ const UserTable = () => {
 								variant="contained"
 								size="medium"
 								color="primary"
-								onClick={handleCreateUser}
+								onClick={handleUserUpdate}
 							>
 								Edit
 							</Button>
@@ -240,6 +250,7 @@ const UserTable = () => {
 					</Button>
 					<User
 						userId={selectedUserId}
+						user={selectedUser}
 						setSelectedUserId={setSelectedUserId}
 						clearSelection={clearSelection}
 						isCreating={isCreating}
