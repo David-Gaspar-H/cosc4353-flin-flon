@@ -12,7 +12,12 @@ const Login = () => {
 	const handleForgotPassword = () => {};
 
 	return (
-		<div>
+		<Grid2
+			container
+			justifyContent="center"
+			alignItems="center"
+			sx={{ height: "100vh" }}
+		>
 			<Paper
 				sx={{
 					padding: 4,
@@ -73,7 +78,7 @@ const Login = () => {
 					</Button>
 				</Grid2>
 			</Paper>
-		</div>
+		</Grid2>
 	);
 };
 
