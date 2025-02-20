@@ -81,38 +81,35 @@ const UserTable = () => {
 
 	return (
 		<Paper sx={{ width: "100%", overflow: "hidden" }}>
-			<Box
-				mt={4}
-				mb={4}
-				display="flex"
-				justifyContent="space-between"
-				alignItems="center"
-			>
-				{selectedUsers.length > 0 ? (
+			<Box mt={4} mb={4} display="flex" gap={2} alignItems="center">
+				<Button
+					variant="contained"
+					color="primary"
+					onClick={handleCreateUser}
+				>
+					Create New User
+				</Button>
+
+				{/* Conditionally render Edit/Delete button on select */}
+				{selectedUsers.length > 0 && (
 					<Stack direction="row" spacing={2}>
 						{selectedUsers.length === 1 && (
-							<IconButton
+							<Button
+								variant="contained"
 								color="primary"
-								onClick={handleUserUpdate}
+								onClick={handleCreateUser}
 							>
-								<EditIcon />
-							</IconButton>
+								Edit
+							</Button>
 						)}
-						<IconButton
+						<Button
+							variant="contained"
 							color="secondary"
 							onClick={handleUserDelete}
 						>
-							<DeleteIcon />
-						</IconButton>
+							Delete
+						</Button>
 					</Stack>
-				) : (
-					<Button
-						variant="contained"
-						color="primary"
-						onClick={handleCreateUser}
-					>
-						Create New User
-					</Button>
 				)}
 			</Box>
 
