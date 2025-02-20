@@ -2,8 +2,7 @@ import "./App.css";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import UserTable from "./components/UserTabel.jsx";
-import User from "./components/User.jsx";
+import UserTable from "./components/UserTable.jsx";
 import Register from "./components/Register.jsx";
 
 function App() {

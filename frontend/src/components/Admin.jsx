@@ -8,6 +8,7 @@ import { createTheme } from "@mui/material/styles";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
+import UserTable from "./UserTable";
 
 const demoTheme = createTheme({
 	cssVariables: {
@@ -27,16 +28,26 @@ const demoTheme = createTheme({
 
 function DemoPageContent({ pathname }) {
 	return (
+		// <Box
+		// 	sx={{
+		// 		py: 4,
+		// 		display: "flex",
+		// 		flexDirection: "column",
+		// 		alignItems: "center",
+		// 		textAlign: "center",
+		// 	}}
+		// >
+		// 	<Typography>Dashboard content for {pathname}</Typography>
+		// </Box>
 		<Box
 			sx={{
-				py: 4,
-				display: "flex",
-				flexDirection: "column",
-				alignItems: "center",
-				textAlign: "center",
+				padding: 4,
 			}}
 		>
-			<Typography>Dashboard content for {pathname}</Typography>
+			<Typography variant="h4" align="left" gutterBottom>
+				Users
+			</Typography>
+			<UserTable />
 		</Box>
 	);
 }
