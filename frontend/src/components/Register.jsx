@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import {FormControl, TextField, InputLabel, Select, MenuItem, Button, Paper} from '@mui/material';
+import {FormControl, TextField, InputLabel, Select, MenuItem, Button, Paper, Typography} from '@mui/material';
 
 const Register = () => {
-    const [formData, setFormData] = useState({
+    const [user, setUser] = useState({
         firstName: '',
         lastName: '',
         email: '',
@@ -12,19 +12,22 @@ const Register = () => {
 
     const handleInputChange = (e) => {
         const {name, value} = e.target;
-        setFormData({
-            ...formData,
+        setUser({
+            ...user,
             [name]: value,
         });
     };
 
     const handleSubmit = () => {
         // Handle form submission logic
-        console.log(formData);
+        console.log(user);
     };
 
     return (
         <Paper sx={{width: '500px', padding: 3}}>
+            <Typography variant="h4" gutterBottom>
+                Register User
+            </Typography>
             <FormControl fullWidth margin={"normal"}>
                 <TextField
                     label="First Name"
@@ -32,7 +35,7 @@ const Register = () => {
                     fullWidth
                     margin="normal"
                     name="firstName"
-                    value={formData.firstName}
+                    value={setUser.firstName}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -41,7 +44,7 @@ const Register = () => {
                     fullWidth
                     margin="normal"
                     name="lastName"
-                    value={formData.lastName}
+                    value={setUser.lastName}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -50,7 +53,7 @@ const Register = () => {
                     fullWidth
                     margin="normal"
                     name="email"
-                    value={formData.email}
+                    value={setUser.email}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -59,7 +62,7 @@ const Register = () => {
                     fullWidth
                     margin="normal"
                     name="username"
-                    value={formData.username}
+                    value={setUser.username}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -69,7 +72,7 @@ const Register = () => {
                     margin="normal"
                     name="password"
                     type="password"
-                    value={formData.password}
+                    value={setUser.password}
                     onChange={handleInputChange}
                 />
                 <TextField
@@ -79,7 +82,7 @@ const Register = () => {
                     margin="normal"
                     name="password"
                     type="password"
-                    value={formData.password}
+                    value={setUser.password}
                     onChange={handleInputChange}
                 />
                 <Button variant="contained" onClick={handleSubmit} sx={{ marginTop: 2, width: 'auto' }}>
