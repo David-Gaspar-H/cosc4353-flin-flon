@@ -1,20 +1,13 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import AccountCircleSharp from "@mui/icons-material/AccountCircleSharp";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
-
-const NAVIGATION = [
-	{
-		segment: "dashboard",
-		title: "Dashboard",
-		icon: <DashboardIcon />,
-	},
-];
 
 const demoTheme = createTheme({
 	cssVariables: {
@@ -52,7 +45,7 @@ DemoPageContent.propTypes = {
 	pathname: PropTypes.string.isRequired,
 };
 
-function DashboardLayoutAccount(props) {
+function Admin(props) {
 	const { window } = props;
 
 	const [session, setSession] = React.useState({
@@ -85,22 +78,34 @@ function DashboardLayoutAccount(props) {
 	// Remove this const when copying and pasting into your project.
 	const demoWindow = window !== undefined ? window() : undefined;
 
+	function CustomTitle() {
+		return (
+			<Stack direction="row" alignItems="center" spacing={2}>
+				<AccountCircleSharp fontSize="large" color="primary" />
+				<Typography variant="h6">User Management</Typography>
+			</Stack>
+		);
+	}
+
 	return (
 		// preview-start
 		<AppProvider
 			session={session}
 			authentication={authentication}
-			navigation={NAVIGATION}
 			router={router}
 			theme={demoTheme}
 			window={demoWindow}
 		>
-			<DashboardLayout>
+			<DashboardLayout
+				slots={{
+					appTitle: CustomTitle,
+				}}
+				hideNavigation
+			>
 				<DemoPageContent pathname={router.pathname} />
 			</DashboardLayout>
 		</AppProvider>
-		// preview-end
 	);
 }
 
-export default DashboardLayoutAccount;
+export default Admin;
