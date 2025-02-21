@@ -69,6 +69,11 @@ class MSAuthCallbackView(APIView):
             user.role = selected_role
             user.status = 'active'
             user.save()
+
+        if selected_role:
+            user.role = selected_role
+            user.status = 'active'
+            user.save()
         
         if user.status == "deactivated":
             return Response({'error': 'deactivated'}, status=status.HTTP_401_UNAUTHORIZED)

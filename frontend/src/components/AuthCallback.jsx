@@ -52,7 +52,7 @@ const AuthCallback = () => {
             console.error("Microsoft auth failed:", error);
             navigate("/login", { 
                 state: { 
-                    error: "Authentication failed. Please try again or contact support." 
+                    error: "Authentication failed. Please try again." 
                 }
             });
         }
