@@ -110,6 +110,7 @@ const UserTable = () => {
 				}
 			}
 			setSelectedUsers([]); // Clear the selected users after processing
+			fetchUsers();
 		} catch (error) {
 			console.error("Error deactivating users:", error);
 		}
@@ -163,7 +164,7 @@ const UserTable = () => {
 							onClick={handleUserDelete}
 							disabled={selectedUsers.length === 0}
 						>
-							Deactivate
+							Delete
 						</Button>
 					</Stack>
 				)}
