@@ -4,6 +4,7 @@ import Admin from "./components/Admin";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Register from "./components/Register.jsx";
 import HomePage from "./components/HomePage.jsx";
+import AuthCallback from './components/AuthCallback';
 
 function App() {
 	return (
@@ -21,6 +22,10 @@ function App() {
 				<Routes>
 					<Route path="/" element={<HomePage />} />
 				</Routes>
+				<Routes>
+					<Route path="/auth/callback" element={<AuthCallback />} />
+				</Routes>
+
 			</Router>
 		</>
 	);

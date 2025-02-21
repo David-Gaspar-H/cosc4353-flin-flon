@@ -105,6 +105,14 @@ DATABASES = {
     }
 }
 
+AZURE_AD = {
+    'CLIENT_ID': env('AZURE_CLIENT_ID'),
+    'CLIENT_SECRET': env('AZURE_CLIENT_SECRET'),
+    'TENANT_ID': env('TENANT_ID'),
+    'REDIRECT_URI': 'http://localhost:3000/auth/callback',
+    'SCOPES': ['User.Read'],
+}
+
 AUTH_USER_MODEL = 'api.CustomUser'
 
 REST_FRAMEWORK = {
