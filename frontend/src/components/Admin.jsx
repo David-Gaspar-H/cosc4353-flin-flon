@@ -9,6 +9,7 @@ import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
 import UserTable from "./UserTable";
+import {useNavigate} from "react-router-dom";
 
 const demoTheme = createTheme({
 	cssVariables: {
@@ -49,7 +50,7 @@ DemoPageContent.propTypes = {
 
 function Admin(props) {
 	const { window } = props;
-
+	const navigate = useNavigate();
 	const [session, setSession] = React.useState({
 		user: {
 			name: "John Doe",
@@ -71,6 +72,7 @@ function Admin(props) {
 			},
 			signOut: () => {
 				setSession(null);
+				navigate('/');
 			},
 		};
 	}, []);

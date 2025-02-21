@@ -3,6 +3,7 @@ import Login from "./components/Login";
 import Admin from "./components/Admin";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Register from "./components/Register.jsx";
+import HomePage from "./components/HomePage.jsx";
 
 function App() {
 	return (
@@ -12,10 +13,13 @@ function App() {
 					<Route path="/login" element={<Login />} />
 				</Routes>
 				<Routes>
-					<Route path="/admin" element={<Admin />} />
+					<Route path="/dashboard" element={<Admin />} />
 				</Routes>
 				<Routes>
 					<Route path="/register" element={<Register />} />
+				</Routes>
+				<Routes>
+					<Route path="/" element={<HomePage />} />
 				</Routes>
 			</Router>
 		</>

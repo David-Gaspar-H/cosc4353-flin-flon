@@ -79,7 +79,7 @@ const UserForm = ({ clearSelection, isCreating, selectedUser }) => {
 			}
 
 			clearSelection(); // Clear the selection in parent
-			navigate("/admin");
+			navigate("/dashboard");
 		} catch (error) {
 			console.error("Error saving user:", error);
 		}
