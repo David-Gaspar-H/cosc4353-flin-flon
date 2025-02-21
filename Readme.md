@@ -25,3 +25,25 @@ DB_PORT=3306
 ```
 python manage.py runserver
 ```
+
+
+## Frontend
+
+- Redirect to project directory
+```
+cd ..
+```
+- Redirect to frontend directory
+```
+cd frontend
+```
+
+- Install dependencies
+```
+npm install
+```
+
+- Run Frontend Server
+```
+npm run dev
+```
