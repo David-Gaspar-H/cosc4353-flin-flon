@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
 	FormControl,
 	TextField,
@@ -12,14 +13,7 @@ import {
 } from "@mui/material";
 import api from "../services/api";
 
-const UserForm = ({
-	userId,
-	setSelectedUserId,
-	clearSelection,
-	isCreating,
-	selectedUser,
-	onUserModified,
-}) => {
+const UserForm = ({ clearSelection, isCreating, selectedUser }) => {
 	const [user, setUserData] = useState({
 		first_name: "",
 		last_name: "",
@@ -29,37 +23,9 @@ const UserForm = ({
 		role: "user",
 		status: "active",
 	});
-
-	// useEffect(() => {
-	// 	// Fetch user data if we're editing an existing user
-	// 	if (userId && !isCreating) {
-	// 		fetchUserData();
-	// 	} else {
-	// 		// Clear form data when creating a new user
-	// 		setUserData({
-	// 			first_name: "",
-	// 			last_name: "",
-	// 			email: "",
-	// 			username: "",
-	// 			password: "",
-	// 			role: "user",
-	// 			status: "active",
-	// 		});
-	// 	}
-	// }, [userId, isCreating]); // Depend on userId and isCreating
-
-	// const fetchUserData = async () => {
-	// 	try {
-	// 		const response = await api.get(`/users/${userId}/`);
-	// 		console.log("Fetched user data:", response.data); // Debugging line
-	// 		setUserData(response.data);
-	// 	} catch (error) {
-	// 		console.error("Error fetching user:", error);
-	// 	}
-	// };
+	const navigate = useNavigate();
 
 	useEffect(() => {
-		console.log("Selected user", selectedUser);
 		if (selectedUser) {
 			setUserData({
 				first_name: selectedUser.first_name,
@@ -95,20 +61,25 @@ const UserForm = ({
 					status: user.status,
 				});
 			} else {
+				if (!selectedUser || !selectedUser.id) {
+					console.error("No user selected for update.");
+					return;
+				}
+
 				// Update existing user
-				await api.put(`/users/${userId}/`, {
+				await api.put(`/users/${selectedUser.id}/`, {
 					first_name: user.first_name,
 					last_name: user.last_name,
 					email: user.email,
 					username: user.username,
-					password: user.password,
+					...(user.password && { password: user.password }),
 					role: user.role,
 					status: user.status,
 				});
 			}
 
-			onUserModified(); // Notify parent component to refresh the list
 			clearSelection(); // Clear the selection in parent
+			navigate("/admin");
 		} catch (error) {
 			console.error("Error saving user:", error);
 		}

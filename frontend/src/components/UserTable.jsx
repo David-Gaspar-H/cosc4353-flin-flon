@@ -29,10 +29,6 @@ const UserTable = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 
-	useEffect(() => {
-		fetchUsers();
-	}, []);
-
 	const fetchUsers = async () => {
 		try {
 			setLoading(true);
@@ -46,6 +42,10 @@ const UserTable = () => {
 			setLoading(false);
 		}
 	};
+
+	useEffect(() => {
+		fetchUsers();
+	}, [selectedUserId, isCreating]);
 
 	const columns = [
 		{ id: "first_name", label: "First Name", minWidth: 170 },
@@ -86,13 +86,15 @@ const UserTable = () => {
 	const handleUserUpdate = () => {
 		if (selectedUsers.length === 1) {
 			const userId = selectedUsers[0];
-			setSelectedUserId(userId);
-			setIsCreating(false);
-
 			// Fetch the user details by userID
 			const userToUpdate = users.find((user) => user.id === userId);
+
 			if (userToUpdate) {
+				setSelectedUserId(userId);
 				setSelectedUser(userToUpdate);
+				setIsCreating(false);
+			} else {
+				console.error("User not found to update.");
 			}
 		}
 	};
