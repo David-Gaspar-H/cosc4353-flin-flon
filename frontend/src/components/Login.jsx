@@ -21,7 +21,7 @@ const Login = () => {
             	navigate('/dashboard');
 			}
 			else{
-            	navigate('/users');
+            	navigate('/');
 			}
             
         } catch (error) {
