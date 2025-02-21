@@ -16,11 +16,11 @@ const Login = () => {
 				password: password,
 			});
 
-			console.log("User Info:", response.data);
-			if (response.data.user.role != "admin") {
-				navigate("/dashboard");
-			} else {
+			console.log("User Info:", response.data.user.role);
+			if (response.data.user.role !== "admin") {
 				navigate("/");
+			} else {
+				navigate("/dashboard");
 			}
 		} catch (error) {
 			console.error("Login failed:", error);
