@@ -99,8 +99,20 @@ const UserTable = () => {
 		}
 	};
 
-	const handleUserDelete = () => {
-		setSelectedUsers([]);
+	const handleUserDelete = async () => {
+		try {
+			for (let userId of selectedUsers) {
+				try {
+					const response = await api.delete(`/users/${userId}/`);
+					console.log(response);
+				} catch (error) {
+					console.error(`Error fetching user ${userId}:`, error);
+				}
+			}
+			setSelectedUsers([]); // Clear the selected users after processing
+		} catch (error) {
+			console.error("Error deactivating users:", error);
+		}
 	};
 
 	const clearSelection = () => {
