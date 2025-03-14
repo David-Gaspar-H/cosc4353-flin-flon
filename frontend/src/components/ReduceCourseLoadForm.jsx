@@ -5,7 +5,7 @@ import {
     Button,
     Paper,
     Typography,
-    Grid2, Link, Checkbox, FormControlLabel,
+    Grid2, Link, Checkbox, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions,
 } from "@mui/material";
 import CallIcon from '@mui/icons-material/Call';
 import EmailIcon from '@mui/icons-material/Email';
@@ -13,10 +13,20 @@ import PublicIcon from '@mui/icons-material/Public';
 import api from "../services/api";
 import {useNavigate} from "react-router-dom";
 import Box from "@mui/material/Box";
+import Signature from "./Signature.jsx";
 
 
 const ReduceCourseLoadForm = () => {
+    const [open, setOpen] = useState(false);
+    // Function to open the dialog
+    const handleOpen = () => {
+        setOpen(true);
+    };
 
+    // Function to close the dialog
+    const handleClose = () => {
+        setOpen(false);
+    };
     const handleInputChange = () => {
 
     };
@@ -115,15 +125,21 @@ const ReduceCourseLoadForm = () => {
                                     onChange={handleInputChange}
                                     fullWidth
                                 />
-                                <TextField
-                                    label="Signature"
-                                    variant="outlined"
-                                    margin="normal"
-                                    name="signature"
-                                    // value={}
-                                    onChange={handleInputChange}
-                                    fullWidth
-                                />
+                                <Button variant="text" onClick={handleOpen} fullWidth>
+                                    Upload Signature
+                                </Button>
+                                {/* Signature Component */}
+                                <Dialog open={open} onClose={handleClose}>
+                                    <DialogTitle>Signature</DialogTitle>
+                                    <DialogContent>
+                                        <Signature></Signature>
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleClose} color="primary">
+                                            Close
+                                        </Button>
+                                    </DialogActions>
+                                </Dialog>
                                 <TextField
                                     // label="Date"
                                     variant="outlined"
@@ -166,15 +182,21 @@ const ReduceCourseLoadForm = () => {
                                     onChange={handleInputChange}
                                     fullWidth
                                 />
-                                <TextField
-                                    label="Signature"
-                                    variant="outlined"
-                                    margin="normal"
-                                    name="signature"
-                                    // value={}
-                                    onChange={handleInputChange}
-                                    fullWidth
-                                />
+                                <Button variant="text" onClick={handleOpen} fullWidth>
+                                    Upload Signature
+                                </Button>
+                                {/* Signature Component */}
+                                <Dialog open={open} onClose={handleClose}>
+                                    <DialogTitle>Signature</DialogTitle>
+                                    <DialogContent>
+                                        <Signature></Signature>
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleClose} color="primary">
+                                            Close
+                                        </Button>
+                                    </DialogActions>
+                                </Dialog>
                                 <TextField
                                     // label="Date"
                                     variant="outlined"
@@ -431,15 +453,21 @@ const ReduceCourseLoadForm = () => {
                                         onChange={handleInputChange}
                                         fullWidth
                                     />
-                                    <TextField
-                                        label="Signature"
-                                        variant="outlined"
-                                        margin="normal"
-                                        name="signature"
-                                        // value={}
-                                        onChange={handleInputChange}
-                                        fullWidth
-                                    />
+                                    <Button variant="text" onClick={handleOpen} fullWidth>
+                                    Upload Signature
+                                </Button>
+                                {/* Signature Component */}
+                                <Dialog open={open} onClose={handleClose}>
+                                    <DialogTitle>Signature</DialogTitle>
+                                    <DialogContent>
+                                        <Signature></Signature>
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleClose} color="primary">
+                                            Close
+                                        </Button>
+                                    </DialogActions>
+                                </Dialog>
                                     <TextField
                                         label="PSID"
                                         variant="outlined"
@@ -489,15 +517,21 @@ const ReduceCourseLoadForm = () => {
                                     onChange={handleInputChange}
                                     fullWidth
                                 />
-                                <TextField
-                                    label="Signature"
-                                    variant="outlined"
-                                    margin="normal"
-                                    name="signature"
-                                    // value={}
-                                    onChange={handleInputChange}
-                                    fullWidth
-                                />
+                                <Button variant="text" onClick={handleOpen} fullWidth>
+                                    Upload Signature
+                                </Button>
+                                {/* Signature Component */}
+                                <Dialog open={open} onClose={handleClose}>
+                                    <DialogTitle>Signature</DialogTitle>
+                                    <DialogContent>
+                                        <Signature></Signature>
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleClose} color="primary">
+                                            Close
+                                        </Button>
+                                    </DialogActions>
+                                </Dialog>
                                 <TextField
                                     // label="Date"
                                     variant="outlined"
@@ -533,14 +567,21 @@ const ReduceCourseLoadForm = () => {
                                     onChange={handleInputChange}
                                     fullWidth
                                 />
-                                <TextField
-                                    label="Signature"
-                                    variant="outlined"
-                                    margin="normal"
-                                    name="signature"
-                                    onChange={handleInputChange}
-                                    fullWidth
-                                />
+                                <Button variant="text" onClick={handleOpen} fullWidth>
+                                    Upload Signature
+                                </Button>
+                                {/* Signature Component */}
+                                <Dialog open={open} onClose={handleClose}>
+                                    <DialogTitle>Signature</DialogTitle>
+                                    <DialogContent>
+                                        <Signature></Signature>
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleClose} color="primary">
+                                            Close
+                                        </Button>
+                                    </DialogActions>
+                                </Dialog>
                                 <TextField
                                     // label="Date"
                                     variant="outlined"
