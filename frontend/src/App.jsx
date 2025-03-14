@@ -24,12 +24,14 @@ function App() {
 				<Routes>
 					<Route path="/" element={<HomePage />} />
 				</Routes>
+				{/*for testing purpose START*/}
 				<Routes>
 					<Route path="/reduce" element={<ReduceCourseLoadForm />} />
 				</Routes>
 				<Routes>
 					<Route path="/signature" element={<Signature />} />
 				</Routes>
+				{/*for testing purpose END*/}
 				<Routes>
 					<Route path="/auth/callback" element={<AuthCallback />} />
 				</Routes>
