@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Register from "./components/Register.jsx";
 import HomePage from "./components/HomePage.jsx";
 import AuthCallback from './components/AuthCallback';
+import ReduceCourseLoadForm from "./components/ReduceCourseLoadForm.jsx";
 
 function App() {
 	return (
@@ -21,6 +22,9 @@ function App() {
 				</Routes>
 				<Routes>
 					<Route path="/" element={<HomePage />} />
+				</Routes>
+				<Routes>
+					<Route path="/reduce" element={<ReduceCourseLoadForm />} />
 				</Routes>
 				<Routes>
 					<Route path="/auth/callback" element={<AuthCallback />} />
