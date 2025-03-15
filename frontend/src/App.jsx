@@ -7,6 +7,7 @@ import HomePage from "./components/HomePage.jsx";
 import AuthCallback from './components/AuthCallback';
 import ReduceCourseLoadForm from "./components/ReduceCourseLoadForm.jsx";
 import Signature from "./components/Signature.jsx";
+import FormsTable from "./components/FormsTable.jsx";
 
 function App() {
 	return (
@@ -30,6 +31,9 @@ function App() {
 				</Routes>
 				<Routes>
 					<Route path="/signature" element={<Signature />} />
+				</Routes>
+				<Routes>
+					<Route path="/forms" element={<FormsTable />} />
 				</Routes>
 				{/*for testing purpose END*/}
 				<Routes>

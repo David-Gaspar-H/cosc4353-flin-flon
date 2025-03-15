@@ -132,7 +132,7 @@ const ReduceCourseLoadForm = () => {
                                 <Dialog open={open} onClose={handleClose}>
                                     <DialogTitle>Signature</DialogTitle>
                                     <DialogContent>
-                                        <Signature></Signature>
+                                        <Signature id="professor1"></Signature>
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={handleClose} color="primary">
@@ -189,7 +189,7 @@ const ReduceCourseLoadForm = () => {
                                 <Dialog open={open} onClose={handleClose}>
                                     <DialogTitle>Signature</DialogTitle>
                                     <DialogContent>
-                                        <Signature></Signature>
+                                        <Signature id="professor2"></Signature>
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={handleClose} color="primary">
@@ -460,7 +460,7 @@ const ReduceCourseLoadForm = () => {
                                 <Dialog open={open} onClose={handleClose}>
                                     <DialogTitle>Signature</DialogTitle>
                                     <DialogContent>
-                                        <Signature></Signature>
+                                        <Signature id="student"></Signature>
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={handleClose} color="primary">
@@ -524,7 +524,7 @@ const ReduceCourseLoadForm = () => {
                                 <Dialog open={open} onClose={handleClose}>
                                     <DialogTitle>Signature</DialogTitle>
                                     <DialogContent>
-                                        <Signature></Signature>
+                                        <Signature id="advisor"></Signature>
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={handleClose} color="primary">
@@ -574,7 +574,7 @@ const ReduceCourseLoadForm = () => {
                                 <Dialog open={open} onClose={handleClose}>
                                     <DialogTitle>Signature</DialogTitle>
                                     <DialogContent>
-                                        <Signature></Signature>
+                                        <Signature id="isso"></Signature>
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={handleClose} color="primary">

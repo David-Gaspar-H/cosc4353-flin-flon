@@ -10,11 +10,38 @@ const Signature = () => {
         signatureCanvasRef.current.clear();
     };
 
-    const saveSignature = () => {
-        const signatureImage = signatureCanvasRef.current.toDataURL();
-        console.log('Signature Image:', signatureImage);
-        // You can further process or store the signatureImage (e.g., send it to a server)
+    const saveSignature = async () => {
+        const canvas = signatureCanvasRef.current.getCanvas();
+
+        canvas.toBlob(async (blob) => {
+            const timestamp = new Date().toISOString();
+            const filename = `signature_${timestamp}.png`;
+
+            const formData = new FormData();
+            formData.append('signature', blob, filename);
+
+            try {
+                const response = await fetch('https://localhost:8000/signature', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save the signature');
+                }
+
+                const data = await response.json();
+                const savedUrl = data.path;
+
+                console.log('Signature saved at:', savedUrl);
+                // onSave(id, savedUrl);
+
+            } catch (error) {
+                console.error('Error saving signature:', error);
+            }
+        }, 'image/png');
     };
+
 
     return (
         <Paper sx={{
