@@ -5,10 +5,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Register from "./components/Register.jsx";
 import HomePage from "./components/HomePage.jsx";
 import AuthCallback from "./components/AuthCallback";
-import ReduceCourseLoadForm from "./components/ReduceCourseLoadForm.jsx";
-import FerpaForm from "./components/FerpaForm.jsx";
-import Signature from "./components/Signature.jsx";
 import UserForms from "./components/UserForms.jsx";
+import UserFormRequest from "./components/UserFormRequest.jsx";
 
 function App() {
 	return (
@@ -26,20 +24,12 @@ function App() {
 				<Routes>
 					<Route path="/" element={<HomePage />} />
 				</Routes>
-				{/*for testing purpose START*/}
 				<Routes>
-					<Route path="/reduce" element={<ReduceCourseLoadForm />} />
+					<Route path="/my-forms" element={<UserForms />} />
 				</Routes>
 				<Routes>
-					<Route path="/ferpa" element={<FerpaForm />} />
+					<Route path="/form-request" element={<UserFormRequest />} />
 				</Routes>
-				<Routes>
-					<Route path="/form-request" element={<UserForms />} />
-				</Routes>
-				<Routes>
-					<Route path="/signature" element={<Signature />} />
-				</Routes>
-				{/*for testing purpose END*/}
 				<Routes>
 					<Route path="/auth/callback" element={<AuthCallback />} />
 				</Routes>

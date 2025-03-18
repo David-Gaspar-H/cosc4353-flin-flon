@@ -17,6 +17,7 @@ import AdbIcon from "@mui/icons-material/Adb";
 const pages = [
 	{ name: "Home", path: "/" },
 	{ name: "Form Request", path: "/form-request" },
+	{ name: "My Forms", path: "/my-forms" },
 	{ name: "About Us", path: "/about" },
 ];
 
