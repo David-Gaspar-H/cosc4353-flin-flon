@@ -8,8 +8,7 @@ import AuthCallback from "./components/AuthCallback";
 import ReduceCourseLoadForm from "./components/ReduceCourseLoadForm.jsx";
 import FerpaForm from "./components/FerpaForm.jsx";
 import Signature from "./components/Signature.jsx";
-import FormsTable from "./components/FormsTable.jsx";
-import UserFormRequest from "./components/UserFormRequest.jsx";
+import UserForms from "./components/UserForms.jsx";
 
 function App() {
 	return (
@@ -35,13 +34,10 @@ function App() {
 					<Route path="/ferpa" element={<FerpaForm />} />
 				</Routes>
 				<Routes>
-					<Route path="/form-request" element={<UserFormRequest />} />
+					<Route path="/form-request" element={<UserForms />} />
 				</Routes>
 				<Routes>
 					<Route path="/signature" element={<Signature />} />
-				</Routes>
-				<Routes>
-					<Route path="/forms" element={<FormsTable />} />
 				</Routes>
 				{/*for testing purpose END*/}
 				<Routes>
