@@ -180,12 +180,23 @@ const FormsTable = () => {
         });
         setData(updatedData);
         setFilteredData(updatedData);
-    };
+    }
 
     function handlePending(row) {
         const updatedData = data.map(item => {
             if (item === row) {
                 return {...item, status: "Pending"};
+            }
+            return item;
+        });
+        setData(updatedData);
+        setFilteredData(updatedData);
+    }
+
+    function handleDraft(row) {
+        const updatedData = data.map(item => {
+            if (item === row) {
+                return {...item, status: "Draft"};
             }
             return item;
         });
@@ -417,8 +428,17 @@ const FormsTable = () => {
                                                 color="warning"
                                                 onClick={() => handlePending(row)}
                                                 size="small"
+                                                sx={{mr: 1}}
                                             >
                                                 Pending
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                onClick={() => handleDraft(row)}
+                                                size="small"
+                                            >
+                                                Draft
                                             </Button>
                                         </TableCell>
                                     </TableRow>
