@@ -43,13 +43,7 @@ const columns = [
 const initialData = [
     {firstName: "John", lastName: "Doe", from: "Reduce Course Load", dateSubmitted: "2025-03-12", status: "Approved"},
     {firstName: "Jane", lastName: "Smith", from: "FERPA", dateSubmitted: "2025-03-12", status: "Pending"},
-    {
-        firstName: "Michael",
-        lastName: "Johnson",
-        from: "Reduce Course Load",
-        dateSubmitted: "2025-03-10",
-        status: "Rejected"
-    },
+    {firstName: "Michael", lastName: "Johnson", from: "Reduce Course Load", dateSubmitted: "2025-03-10", status: "Rejected"},
     {firstName: "Emily", lastName: "Williams", from: "FERPA", dateSubmitted: "2025-03-08", status: "Approved"},
     {firstName: "David", lastName: "Brown", from: "Reduce Course Load", dateSubmitted: "2025-03-05", status: "Pending"},
     {firstName: "David", lastName: "Brown", from: "Reduce Course Load", dateSubmitted: "2025-03-05", status: "Draft"},
@@ -76,7 +70,8 @@ const FormsTable = () => {
     const [statusFilters, setStatusFilters] = useState({
         Approved: false,
         Pending: false,
-        Rejected: false
+        Rejected: false,
+        Draft: false,
     });
 
     // Apply filters whenever filter states change
@@ -150,7 +145,8 @@ const FormsTable = () => {
         setStatusFilters({
             Approved: false,
             Pending: false,
-            Rejected: false
+            Rejected: false,
+            Draft: false,
         });
     };
 
@@ -254,9 +250,6 @@ const FormsTable = () => {
                                         value={startDateFilter}
                                         onChange={(e) => setStartDateFilter(e.target.value)}
                                         size="small"
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
                                     />
                                 </Grid2>
                                 <Grid2 xs={12} sm={6} md={3}>
@@ -268,9 +261,6 @@ const FormsTable = () => {
                                         value={endDateFilter}
                                         onChange={(e) => setEndDateFilter(e.target.value)}
                                         size="small"
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
                                     />
                                 </Grid2>
                                 <Grid2 xs={12} sm={6} md={3}>
@@ -326,6 +316,16 @@ const FormsTable = () => {
                                                 />
                                             }
                                             label="Rejected"
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={statusFilters.Draft}
+                                                    onChange={() => handleStatusFilterChange("Draft")}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label="Draft"
                                         />
                                     </FormGroup>
                                 </Grid2>
