@@ -7,6 +7,7 @@ import HomePage from "./components/HomePage.jsx";
 import AuthCallback from "./components/AuthCallback";
 import UserForms from "./components/UserForms.jsx";
 import UserFormRequest from "./components/UserFormRequest.jsx";
+import AdminFormApproval from "./components/AdminFormApproval.jsx";
 
 function App() {
 	return (
@@ -29,6 +30,12 @@ function App() {
 				</Routes>
 				<Routes>
 					<Route path="/form-request" element={<UserFormRequest />} />
+				</Routes>
+				<Routes>
+					<Route
+						path="/form-approval"
+						element={<AdminFormApproval />}
+					/>
 				</Routes>
 				<Routes>
 					<Route path="/auth/callback" element={<AuthCallback />} />
