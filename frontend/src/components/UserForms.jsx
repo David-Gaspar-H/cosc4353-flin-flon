@@ -9,10 +9,16 @@ const UserForms = () => {
 		{
 			formName: "Reduce Course Load",
 			dateSubmitted: "2025-03-15",
-			status: "Pending",
+			status: "Rejected",
 			firstName: "John",
 			lastName: "Doe",
-			needsAnotherRequestor: false,
+		},
+		{
+			formName: "Reduce Course Load",
+			dateSubmitted: "2025-03-11",
+			status: "Pending",
+			firstName: "Jane",
+			lastName: "Doe",
 		},
 		{
 			formName: "FERPA",
@@ -20,7 +26,6 @@ const UserForms = () => {
 			status: "Approved",
 			firstName: "Jane",
 			lastName: "Smith",
-			needsAnotherRequestor: true,
 		},
 	];
 	return (

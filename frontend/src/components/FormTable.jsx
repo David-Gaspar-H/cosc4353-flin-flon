@@ -18,7 +18,7 @@ import {
 import ReduceCourseLoadForm from "./ReduceCourseLoadForm.jsx";
 import FerpaForm from "./FerpaForm.jsx";
 
-const FormTable = ({ isAdmin, formsData }) => {
+const FormTable = ({ isAdmin, formsData, sx }) => {
 	const [open, setOpen] = useState(false);
 	const [currentRow, setCurrentRow] = useState(null);
 
@@ -29,6 +29,7 @@ const FormTable = ({ isAdmin, formsData }) => {
 	const columns = isAdmin
 		? [
 				{ id: "requestor", label: "Requestor Name" },
+				{ id: "form", label: "Form Name" },
 				{ id: "submitted", label: "Date Submitted" },
 				{ id: "view", label: "View Form" },
 				{ id: "extra_requestor", label: "Needs Another Requestor?" },
@@ -51,7 +52,7 @@ const FormTable = ({ isAdmin, formsData }) => {
 	};
 
 	return (
-		<Box sx={{ p: 3, backgroundColor: "#f5f5f5", borderRadius: 2 }}>
+		<Box sx={{ p: 3, backgroundColor: "#f5f5f5", borderRadius: 2, ...sx }}>
 			<Typography
 				variant="h5"
 				fontWeight="bold"
@@ -100,6 +101,7 @@ const FormTable = ({ isAdmin, formsData }) => {
 								{isAdmin ? (
 									<>
 										<TableCell>{`${row.firstName} ${row.lastName}`}</TableCell>
+										<TableCell>{row.formName}</TableCell>
 										<TableCell>
 											{row.dateSubmitted}
 										</TableCell>
@@ -163,7 +165,10 @@ const FormTable = ({ isAdmin, formsData }) => {
 													color:
 														row.status === "Pending"
 															? "orange"
-															: "green",
+															: row.status ===
+																  "Approved"
+																? "green"
+																: "red",
 												}}
 											>
 												{row.status}
