@@ -9,6 +9,7 @@ import ReduceCourseLoadForm from "./components/ReduceCourseLoadForm.jsx";
 import FerpaForm from "./components/FerpaForm.jsx";
 import Signature from "./components/Signature.jsx";
 import FormsTable from "./components/FormsTable.jsx";
+import UserFormRequest from "./components/UserFormRequest.jsx";
 
 function App() {
 	return (
@@ -32,6 +33,9 @@ function App() {
 				</Routes>
 				<Routes>
 					<Route path="/ferpa" element={<FerpaForm />} />
+				</Routes>
+				<Routes>
+					<Route path="/form-request" element={<UserFormRequest />} />
 				</Routes>
 				<Routes>
 					<Route path="/signature" element={<Signature />} />
