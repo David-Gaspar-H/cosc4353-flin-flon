@@ -1,6 +1,6 @@
 import React from "react";
 import { Grid2, Paper } from "@mui/material";
-import ResponsiveAppBar from "./ResponsiveAppBar";
+// import ResponsiveAppBar from "./ResponsiveAppBar";
 import Footer from "./Footer";
 import FormTable from "./FormTable";
 
@@ -23,7 +23,7 @@ const AdminFormApproval = () => {
 	];
 	return (
 		<>
-			<ResponsiveAppBar />
+			{/* <ResponsiveAppBar /> */}
 
 			<Grid2 container direction={"column"} sx={{ height: "100vh" }}>
 				<Paper

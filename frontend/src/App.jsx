@@ -1,4 +1,7 @@
 import "./App.css";
+import ResponsiveAppBar from "./components/ResponsiveAppBar.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import { UserProvider, useUser } from "./components/context/UserContext.jsx";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -9,39 +12,49 @@ import UserForms from "./components/UserForms.jsx";
 import UserFormRequest from "./components/UserFormRequest.jsx";
 import AdminFormApproval from "./components/AdminFormApproval.jsx";
 
-function App() {
+function AppContent() {
+	const { user, logout } = useUser();
 	return (
 		<>
-			<Router>
-				<Routes>
-					<Route path="/login" element={<Login />} />
-				</Routes>
-				<Routes>
-					<Route path="/dashboard" element={<Admin />} />
-				</Routes>
-				<Routes>
-					<Route path="/register" element={<Register />} />
-				</Routes>
-				<Routes>
-					<Route path="/" element={<HomePage />} />
-				</Routes>
-				<Routes>
-					<Route path="/my-forms" element={<UserForms />} />
-				</Routes>
-				<Routes>
-					<Route path="/form-request" element={<UserFormRequest />} />
-				</Routes>
-				<Routes>
-					<Route
-						path="/form-approval"
-						element={<AdminFormApproval />}
-					/>
-				</Routes>
-				<Routes>
-					<Route path="/auth/callback" element={<AuthCallback />} />
-				</Routes>
-			</Router>
+			<ResponsiveAppBar user={user} logout={logout} />
+			<Routes>
+				<Route path="/" element={<HomePage />} />
+				<Route path="/login" element={<Login />} />
+				<Route path="/register" element={<Register />} />
+				<Route path="/my-forms" element={<UserForms />} />
+				<Route path="/form-request" element={<UserFormRequest />} />
+				<Route path="/auth/callback" element={<AuthCallback />} />
+
+				{/* Protected Routes */}
+				<Route
+					path="/dashboard"
+					element={
+						<ProtectedRoute allowedRoles={["admin"]}>
+							<Admin />
+						</ProtectedRoute>
+					}
+				/>
+
+				<Route
+					path="/form-approval"
+					element={
+						<ProtectedRoute allowedRoles={["admin"]}>
+							<AdminFormApproval />
+						</ProtectedRoute>
+					}
+				/>
+			</Routes>
 		</>
+	);
+}
+
+function App() {
+	return (
+		<UserProvider>
+			<Router>
+				<AppContent />
+			</Router>
+		</UserProvider>
 	);
 }
 
