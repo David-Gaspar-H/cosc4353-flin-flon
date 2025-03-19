@@ -3,7 +3,7 @@ import ResponsiveAppBar from "./components/ResponsiveAppBar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { UserProvider, useUser } from "./components/context/UserContext.jsx";
 import Login from "./components/Login";
-import Admin from "./components/Admin";
+import UserManagement from "./components/UserManagement.jsx";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Register from "./components/Register.jsx";
 import HomePage from "./components/HomePage.jsx";
@@ -30,7 +30,7 @@ function AppContent() {
 					path="/dashboard"
 					element={
 						<ProtectedRoute allowedRoles={["admin"]}>
-							<Admin />
+							<UserManagement />
 						</ProtectedRoute>
 					}
 				/>

@@ -12,11 +12,16 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 
-const pages = [
+const user_pages = [
 	{ name: "Home", path: "/" },
 	{ name: "Form Request", path: "/form-request" },
 	{ name: "My Forms", path: "/my-forms" },
 	{ name: "About Us", path: "/about" },
+];
+
+const admin_pages = [
+	{ name: "Users", path: "/dashboard" },
+	{ name: "Approvals", path: "/form-approval" },
 ];
 
 function ResponsiveAppBar({ user, logout }) {
@@ -42,6 +47,8 @@ function ResponsiveAppBar({ user, logout }) {
 		navigate("/login");
 		handleCloseUserMenu();
 	};
+
+	const pages = user?.role === "admin" ? admin_pages : user_pages;
 
 	return (
 		<AppBar
