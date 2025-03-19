@@ -109,7 +109,7 @@ function ResponsiveAppBar({ user, logout }) {
 								onClick={handleOpenUserMenu}
 								sx={{ p: 0 }}
 							>
-								<Avatar alt={user.name} src="/avatar.png" />
+								<Avatar alt={user.username} src="/avatar.png" />
 							</IconButton>
 							<Menu
 								sx={{ mt: "45px" }}
@@ -129,7 +129,7 @@ function ResponsiveAppBar({ user, logout }) {
 							>
 								<MenuItem disabled>
 									<Typography textAlign="center">
-										{user.name}
+										{user?.username || "User"}
 									</Typography>
 								</MenuItem>
 								<MenuItem onClick={handleLogout}>
