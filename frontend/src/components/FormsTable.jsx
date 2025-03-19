@@ -32,7 +32,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import ClearIcon from "@mui/icons-material/Clear";
 import ReduceCourseLoadForm from "./ReduceCourseLoadForm.jsx";
-import ResponsiveAppBar from "./ResponsiveAppBar.jsx";
 import Box from "@mui/material/Box";
 import Footer from "./Footer.jsx";
 import FerpaForm from "./FerpaForm.jsx";
@@ -204,10 +203,6 @@ const FormsTable = () => {
 		});
 	};
 
-	const handleEdit = (row) => {
-		setCurrentRow(row);
-		setOpen(true);
-	};
 
 	const handleClose = () => {
 		setOpen(false);
@@ -236,27 +231,6 @@ const FormsTable = () => {
 		setFilteredData(updatedData);
 	}
 
-	function handlePending(row) {
-		const updatedData = data.map((item) => {
-			if (item === row) {
-				return { ...item, status: "Pending" };
-			}
-			return item;
-		});
-		setData(updatedData);
-		setFilteredData(updatedData);
-	}
-
-	function handleDraft(row) {
-		const updatedData = data.map((item) => {
-			if (item === row) {
-				return { ...item, status: "Draft" };
-			}
-			return item;
-		});
-		setData(updatedData);
-		setFilteredData(updatedData);
-	}
 
 	const handleFormFilterChange = (event) => {
 		const {
@@ -530,15 +504,6 @@ const FormsTable = () => {
 										<TableCell>
 											<Button
 												variant="contained"
-												color="primary"
-												onClick={() => handleEdit(row)}
-												size="small"
-												sx={{ mr: 1 }}
-											>
-												Edit
-											</Button>
-											<Button
-												variant="contained"
 												color="success"
 												onClick={() =>
 													handleApprove(row)
@@ -558,25 +523,6 @@ const FormsTable = () => {
 												sx={{ mr: 1 }}
 											>
 												Reject
-											</Button>
-											<Button
-												variant="contained"
-												color="warning"
-												onClick={() =>
-													handlePending(row)
-												}
-												size="small"
-												sx={{ mr: 1 }}
-											>
-												Pending
-											</Button>
-											<Button
-												variant="contained"
-												color="secondary"
-												onClick={() => handleDraft(row)}
-												size="small"
-											>
-												Draft
 											</Button>
 										</TableCell>
 									</TableRow>
