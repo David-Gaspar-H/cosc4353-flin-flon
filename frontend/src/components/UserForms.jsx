@@ -1,5 +1,5 @@
 import React from "react";
-import ResponsiveAppBar from "./ResponsiveAppBar";
+// import ResponsiveAppBar from "./ResponsiveAppBar";
 import Footer from "./Footer";
 import { Grid2, Paper } from "@mui/material";
 import FormTable from "./FormTable";
@@ -30,7 +30,7 @@ const UserForms = () => {
 	];
 	return (
 		<>
-			<ResponsiveAppBar />
+			{/* <ResponsiveAppBar /> */}
 
 			<Grid2 container direction={"column"} sx={{ height: "100vh" }}>
 				<Paper

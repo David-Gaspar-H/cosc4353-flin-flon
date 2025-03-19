@@ -16,11 +16,13 @@ import {
 	DialogContent,
 } from "@mui/material";
 import Signature from "./Signature.jsx";
+import { useUser } from "./context/UserContext";
 
 const FerpaForm = () => {
 	// Get system date to prefill form field
 	const currentDate = new Date();
 	const dateFriendlyFormat = currentDate.toLocaleDateString();
+	const { user } = useUser();
 
 	// Function to open the dialog
 	const [open, setOpen] = useState(false);
@@ -34,7 +36,7 @@ const FerpaForm = () => {
 	};
 	// Form data state
 	const [formData, setFormData] = useState({
-		name: "", // capture from user session
+		name: user ? `${user.first_name} ${user.last_name}` : "", // capture from user session
 		releaseTo: "",
 		password: "",
 		peopleSoftId: "",
@@ -373,12 +375,10 @@ const FerpaForm = () => {
 							autoComplete="off"
 						>
 							<TextField
-								label="Name"
 								variant="outlined"
 								margin="normal"
-								name="name"
+								value={formData.name}
 								onChange={handleChange}
-								// fullWidth
 								sx={{
 									marginRight: 2,
 								}}
