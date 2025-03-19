@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useUser } from "./context/UserContext";
 import { useNavigate } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
