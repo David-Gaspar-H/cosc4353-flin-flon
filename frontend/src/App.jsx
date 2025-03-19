@@ -25,8 +25,7 @@ function AppContent() {
 				<Route path="/my-forms" element={<UserForms />} />
 				<Route path="/form-request" element={<UserFormRequest />} />
 				<Route path="/auth/callback" element={<AuthCallback />} />
-				<Route path="/admin-form" element={<FormsTable />} />
-
+				{/*<Route path="/admin-form" element={<FormsTable />} />*/}
 				{/* Protected Routes */}
 				<Route
 					path="/dashboard"
@@ -42,6 +41,15 @@ function AppContent() {
 					element={
 						<ProtectedRoute allowedRoles={["admin"]}>
 							<AdminFormApproval />
+						</ProtectedRoute>
+					}
+				/>
+
+				<Route
+					path="//admin-form"
+					element={
+						<ProtectedRoute allowedRoles={["admin"]}>
+							<FormsTable />
 						</ProtectedRoute>
 					}
 				/>
