@@ -14,6 +14,7 @@ import api from "../services/api";
 import {useNavigate} from "react-router-dom";
 import Box from "@mui/material/Box";
 import Signature from "./Signature.jsx";
+import Stack from "@mui/material/Stack";
 
 
 const ReduceCourseLoadForm = () => {
@@ -33,6 +34,10 @@ const ReduceCourseLoadForm = () => {
 
     const handleSubmit = async () => {
 
+    };
+    const handleSave = (e) => {
+        console.log('formdata.status = draft');
+        handleSubmit();
     };
 
     return (
@@ -63,7 +68,7 @@ const ReduceCourseLoadForm = () => {
                 <form onSubmit={handleSubmit}>
                     <FormControl fullWidth margin={"normal"}>
                         <Typography variant={"h5"}> 1. ACADEMIC DIFFICULTY <u>(FIRST SEMESTER ONLY)</u></Typography>
-                        <Box sx={{pl: 2}} gutterBottom>
+                        <Box sx={{pl: 2}}>
                             <Typography p>RCL for valid academic difficulties is allowed once and only in the first
                                 semester
                                 when starting a new degree program. A minimum of 6hrs will still have to completed. This
@@ -316,7 +321,10 @@ const ReduceCourseLoadForm = () => {
                         </Box>
                         <Box sx={{border: 1, mt: 2}}>
                             <Typography p sx={{lineHeight: 1.5}}>
-                                I am applying for a reduced course load for the fall semester of 20
+                                I am applying for a reduced course load for the
+                                <FormControlLabel
+                                    control={<Checkbox/>}
+                                    label="fall semester of 20"/>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -329,7 +337,9 @@ const ReduceCourseLoadForm = () => {
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
                                 />{' '}
-                                spring semester of 20
+                                <FormControlLabel
+                                    control={<Checkbox/>}
+                                    label="spring semester of 20"/>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -398,7 +408,10 @@ const ReduceCourseLoadForm = () => {
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
                                 />
-                                hours (at UH) for the: Fall semester 20
+                                hours (at UH) for the:
+                                <FormControlLabel
+                                    control={<Checkbox/>}
+                                    label="Fall semester of 20"/>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -411,19 +424,23 @@ const ReduceCourseLoadForm = () => {
                                         margin: '0',
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
-                                />. Spring semester of 20<TextField
-                                variant="outlined"
-                                margin="normal"
-                                name="fallYear"
-                                type="number"
-                                // value={}
-                                onChange={handleInputChange}
-                                sx={{
-                                    display: 'inline-block',
-                                    margin: '0',
-                                    '& input': {fontSize: '1rem', padding: '0.5rem'},
-                                }}
-                            />.
+                                />.
+                                <FormControlLabel
+                                    control={<Checkbox/>}
+                                    label="Spring semester of 20"/>
+                                <TextField
+                                    variant="outlined"
+                                    margin="normal"
+                                    name="fallYear"
+                                    type="number"
+                                    // value={}
+                                    onChange={handleInputChange}
+                                    sx={{
+                                        display: 'inline-block',
+                                        margin: '0',
+                                        '& input': {fontSize: '1rem', padding: '0.5rem'},
+                                    }}
+                                />.
                             </Typography>
                             <Typography p>
                                 You must submit a copy of this form to Office of the University Registrar (located in
@@ -454,20 +471,20 @@ const ReduceCourseLoadForm = () => {
                                         fullWidth
                                     />
                                     <Button variant="text" onClick={handleOpen} fullWidth>
-                                    Upload Signature
-                                </Button>
-                                {/* Signature Component */}
-                                <Dialog open={open} onClose={handleClose}>
-                                    <DialogTitle>Signature</DialogTitle>
-                                    <DialogContent>
-                                        <Signature id="student"></Signature>
-                                    </DialogContent>
-                                    <DialogActions>
-                                        <Button onClick={handleClose} color="primary">
-                                            Close
-                                        </Button>
-                                    </DialogActions>
-                                </Dialog>
+                                        Upload Signature
+                                    </Button>
+                                    {/* Signature Component */}
+                                    <Dialog open={open} onClose={handleClose}>
+                                        <DialogTitle>Signature</DialogTitle>
+                                        <DialogContent>
+                                            <Signature id="student"></Signature>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button onClick={handleClose} color="primary">
+                                                Close
+                                            </Button>
+                                        </DialogActions>
+                                    </Dialog>
                                     <TextField
                                         label="PSID"
                                         variant="outlined"
@@ -593,13 +610,29 @@ const ReduceCourseLoadForm = () => {
                                 />
                             </Box>
                         </Box>
-                        <Button
-                            variant="contained"
-                            type="submit"
-                            sx={{marginTop: 2}}
+                        <Stack spacing={2} mt={2} direction={"row"} sx={{
+                            justifyContent: "flex-end",
+                            alignItems: "center",
+                        }}
                         >
-                            Submit
-                        </Button>
+                            <Button
+                                variant="contained"
+                                type="button"
+                                color="success"
+                                onClick={handleSave}
+                                sx={{marginTop: 2, display: 'inline-block !important'}}
+                            >
+                                Save
+                            </Button>
+                            <Button
+                                variant="contained"
+                                type="submit"
+                                sx={{marginTop: 2, display: 'inline-block !important'}}
+                            >
+                                Submit
+                            </Button>
+                        </Stack>
+
                     </FormControl>
                 </form>
             </Paper>

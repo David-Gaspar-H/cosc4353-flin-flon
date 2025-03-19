@@ -200,6 +200,11 @@ const UserTable = () => {
 									<TableCell
 										key={column.id}
 										style={{ minWidth: column.minWidth }}
+										sx={{
+											fontWeight: "bold",
+											fontSize: "1.1rem",
+											backgroundColor: "#f5f5f5",
+										}}
 									>
 										{column.label}
 									</TableCell>
