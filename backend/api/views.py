@@ -150,7 +150,7 @@ class LoginView(APIView):
 
 class FormViewSet(viewsets.ModelViewSet):
     serializer_class = FormSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def get_queryset(self):
         user = self.request.user
@@ -177,7 +177,7 @@ class FormViewSet(viewsets.ModelViewSet):
 
 class UserFormsView(generics.ListAPIView):
     serializer_class = FormSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def get_queryset(self):
         user_id = self.kwargs.get('user_id')
@@ -187,7 +187,7 @@ class UserFormsView(generics.ListAPIView):
         return Form.objects.none()
 
 class FormSubmitView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def post(self, request, form_id):
         form = get_object_or_404(Form, id=form_id, user=request.user)
@@ -214,7 +214,7 @@ class FormSubmitView(APIView):
         return Response(serializer.data)
 
 class FormApproveView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def post(self, request, form_id):
         # User is an admin
@@ -265,7 +265,7 @@ class FormApproveView(APIView):
         return Response(serializer.data)
 
 class FormRejectView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def post(self, request, form_id):
         # Ensure user is an admin
