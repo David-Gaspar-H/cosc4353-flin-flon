@@ -14,6 +14,7 @@ import {
 	DialogTitle,
 	DialogActions,
 	DialogContent,
+	Stack,
 } from "@mui/material";
 import Signature from "./Signature.jsx";
 import { useUser } from "./context/UserContext";
@@ -23,6 +24,9 @@ const FerpaForm = () => {
 	const currentDate = new Date();
 	const dateFriendlyFormat = currentDate.toLocaleDateString();
 	const { user } = useUser();
+
+	// To save the signature
+	const [signature, setSignature] = useState(null);
 
 	// Function to open the dialog
 	const [open, setOpen] = useState(false);
@@ -37,19 +41,91 @@ const FerpaForm = () => {
 	// Form data state
 	const [formData, setFormData] = useState({
 		name: user ? `${user.first_name} ${user.last_name}` : "", // capture from user session
-		releaseTo: "",
-		password: "",
 		peopleSoftId: "",
 		date: [dateFriendlyFormat],
+		data: {
+			registrar: true,
+			scholarships: false,
+			financialAid: false,
+			undergradScholars: false,
+			universityAdvancement: false,
+			deanOfStudentOffice: false,
+			otherOfficials: false,
+			otherOfficialsText: "",
+			advising: false,
+			academicRecords: false,
+			universityRecords: false,
+			billingFinancialAid: false,
+			disciplinary: false,
+			gradesTranscripts: false,
+			housing: false,
+			photos: false,
+			scholarshipsHonors: false,
+			otherCategories: false,
+			otherCategoriesText: "",
+			releaseTo: "",
+			family: false,
+			educationalInstitutions: false,
+			honorAward: false,
+			employer: false,
+			publicOrMedia: false,
+			otherReleaseTo: false,
+			otherReleaseToText: "",
+			password: "",
+			signature: "",
+		},
 	});
 
-	// Dynamically update input
 	const handleChange = (e) => {
-		setFormData({ ...setFormData, [e.target.name]: e.target.value });
+		const { name, value, type, checked } = e.target;
+
+		setFormData((prevState) => {
+			// Determine new value to be updated
+			const newValue = type === "checkbox" ? checked : value;
+
+			// Update field if it exists in data
+			if (name in prevState.data) {
+				return {
+					...prevState,
+					data: {
+						...prevState.data,
+						[name]: newValue,
+					},
+				};
+			}
+
+			// otherwise update root-level field
+			return {
+				...prevState,
+				[name]: newValue,
+			};
+		});
 	};
 
 	// Handle form submit
-	const handleSubmit = async () => {};
+	const handleSubmit = async () => {
+		// try {
+		// 	const response = await fetch("", {
+		// 		method: "POST",
+		// 		headers: { "Content-Type": "application/json" },
+		// 		body: JSON.stringify(formData),
+		// 	});
+		// } catch (error) {
+		// 	console.error("Error submitting form:", error);
+		// }
+	};
+
+	const handleSave = (imageData) => {
+		setSignature(imageData);
+		setFormData((prevState) => ({
+			...prevState,
+			data: {
+				...prevState.data,
+				signature: imageData,
+			},
+		}));
+		handleClose();
+	};
 
 	return (
 		<Grid2
@@ -117,36 +193,55 @@ const FerpaForm = () => {
 							sx={{ display: "flex", flexDirection: "column" }}
 						>
 							<FormControlLabel
+								checked={formData.data.registrar}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
+								name="registrar"
 								label="Office of the University Registrar"
+								onChange={handleChange}
 							/>
 							<FormControlLabel
+								checked={formData.data.scholarships}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Scholarships and Financial Aid"
+								onChange={handleChange}
+								name="scholarships"
 							/>
 							<FormControlLabel
+								checked={formData.data.financialAid}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Student Financial Services"
+								onChange={handleChange}
+								name="financialAid"
 							/>
 							<FormControlLabel
+								checked={formData.data.undergradScholars}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Undergraduate Scholars @ UH (formally USD)"
+								onChange={handleChange}
+								name="undergradScholars"
 							/>
 							<FormControlLabel
+								checked={formData.data.universityAdvancement}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="University Advancement"
+								onChange={handleChange}
+								name="universityAdvancement"
 							/>
 							<FormControlLabel
+								checked={formData.data.deanOfStudentOffice}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Dean of Students Office"
+								onChange={handleChange}
+								name="deanOfStudentOffice"
 							/>
 							<FormControlLabel
+								checked={formData.data.otherOfficials}
 								sx={{
 									pl: 10,
 									pt: 1,
@@ -155,16 +250,23 @@ const FerpaForm = () => {
 									alignItems: "center",
 								}}
 								control={<Checkbox />}
+								onChange={handleChange}
+								name="otherOfficials"
 								label={
 									<>
 										Other (Please Specify)
 										<TextField
+											name="otherOfficialsText"
+											value={
+												formData.data.otherOfficialsText
+											}
 											size="small"
 											sx={{
 												width: "150px",
 												pl: 1,
 												alignSelf: "center",
 											}}
+											onChange={handleChange}
 										/>
 									</>
 								}
@@ -183,51 +285,81 @@ const FerpaForm = () => {
 							sx={{ display: "flex", flexDirection: "column" }}
 						>
 							<FormControlLabel
+								checked={formData.data.advising}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Academic Advising Profile/Information"
+								onChange={handleChange}
+								name="advising"
 							/>
 							<FormControlLabel
+								checked={formData.data.academicRecords}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Academic Records"
+								onChange={handleChange}
+								name="academicRecords"
 							/>
 							<FormControlLabel
+								checked={formData.data.universityRecords}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="All University Records"
+								onChange={handleChange}
+								name="universityRecords"
 							/>
 							<FormControlLabel
+								checked={formData.data.billingFinancialAid}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Billing/Financial Aid"
+								onChange={handleChange}
+								name="billingFinancialAid"
 							/>
 							<FormControlLabel
+								checked={formData.data.disciplinary}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Disciplinary"
+								onChange={handleChange}
+								name="disciplinary"
 							/>
 							<FormControlLabel
+								checked={formData.data.gradesTranscripts}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Grades/Transcripts"
+								onChange={handleChange}
+								name="gradesTranscripts"
 							/>
 							<FormControlLabel
+								checked={formData.data.housing}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Housing"
+								onChange={handleChange}
+								name="housing"
 							/>
 							<FormControlLabel
+								checked={formData.data.photos}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Photos"
+								onChange={handleChange}
+								name="photos"
 							/>
 							<FormControlLabel
+								checked={formData.data.scholarshipsHonors}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Scholarships and/or Honors"
+								onChange={handleChange}
+								name="scholarshipsHonors"
 							/>
 							<FormControlLabel
+								checked={formData.data.otherCategories}
+								onChange={handleChange}
+								name="otherCategories"
 								sx={{
 									pl: 10,
 									pt: 1,
@@ -240,12 +372,18 @@ const FerpaForm = () => {
 									<>
 										Other (Please Specify)
 										<TextField
+											name="otherCategoriesText"
+											value={
+												formData.data
+													.otherCategoriesText
+											}
 											size="small"
 											sx={{
 												width: "150px",
 												pl: 1,
 												alignSelf: "center",
 											}}
+											onChange={handleChange}
 										/>
 									</>
 								}
@@ -256,7 +394,7 @@ const FerpaForm = () => {
 								The information may be released to:
 								<Tooltip title="Print name(s) of Individual(s) to whom the University may disclose information, comma separated">
 									<TextField
-										value={formData.releaseTo}
+										value={formData.data.releaseTo}
 										name="releaseTo"
 										onChange={handleChange}
 										size="small"
@@ -275,31 +413,49 @@ const FerpaForm = () => {
 							sx={{ display: "flex", flexDirection: "column" }}
 						>
 							<FormControlLabel
+								checked={formData.data.family}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Family"
+								onChange={handleChange}
+								name="family"
 							/>
 							<FormControlLabel
+								checked={formData.data.educationalInstitutions}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Educational Institution"
+								onChange={handleChange}
+								name="educationalInstitutions"
 							/>
 							<FormControlLabel
+								checked={formData.data.honorAward}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Honor or Award"
+								onChange={handleChange}
+								name="honorAward"
 							/>
 							<FormControlLabel
+								checked={formData.data.employer}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Employer/Prospective Employer"
+								onChange={handleChange}
+								name="employer"
 							/>
 							<FormControlLabel
+								checked={formData.data.publicOrMedia}
 								sx={{ pl: 10, pt: 0.5 }}
 								control={<Checkbox />}
 								label="Public or Media of Scholarship"
+								onChange={handleChange}
+								name="publicOrMedia"
 							/>
 							<FormControlLabel
+								checked={formData.data.otherReleaseTo}
+								onChange={handleChange}
+								name="otherReleaseTo"
 								sx={{
 									pl: 10,
 									pt: 1,
@@ -312,6 +468,11 @@ const FerpaForm = () => {
 									<>
 										Other (Please Specify)
 										<TextField
+											name="otherReleaseToText"
+											value={
+												formData.data.otherReleaseToText
+											}
+											onChange={handleChange}
 											size="small"
 											sx={{
 												width: "150px",
@@ -332,7 +493,8 @@ const FerpaForm = () => {
 								via the phone:
 								<TextField
 									name="password"
-									value={formData.password}
+									value={formData.data.password}
+									onChange={handleChange}
 									sx={{
 										width: "150px",
 										pl: 1,
@@ -400,7 +562,10 @@ const FerpaForm = () => {
 							<Dialog open={open} onClose={handleClose}>
 								<DialogTitle>Signature</DialogTitle>
 								<DialogContent>
-									<Signature id="isso"></Signature>
+									<Signature
+										id="ferpa"
+										onSave={handleSave}
+									></Signature>
 								</DialogContent>
 								<DialogActions>
 									<Button
@@ -415,6 +580,7 @@ const FerpaForm = () => {
 								label="PSID"
 								margin="normal"
 								name="peopleSoftId"
+								value={formData.peopleSoftId}
 								onChange={handleChange}
 								marginRight={5}
 							/>
@@ -430,6 +596,38 @@ const FerpaForm = () => {
 								Date: {formData.date}
 							</Typography>
 						</Box>
+						<Stack
+							spacing={2}
+							mt={2}
+							direction={"row"}
+							sx={{
+								justifyContent: "flex-end",
+								alignItems: "center",
+							}}
+						>
+							<Button
+								variant="contained"
+								type="button"
+								color="success"
+								onClick={handleSave}
+								sx={{
+									marginTop: 2,
+									display: "inline-block !important",
+								}}
+							>
+								Save
+							</Button>
+							<Button
+								variant="contained"
+								type="submit"
+								sx={{
+									marginTop: 2,
+									display: "inline-block !important",
+								}}
+							>
+								Submit
+							</Button>
+						</Stack>
 					</FormControl>
 				</form>
 			</Paper>
