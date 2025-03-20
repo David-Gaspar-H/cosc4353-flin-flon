@@ -2,18 +2,24 @@ from rest_framework import serializers
 from .models import CustomUser, Form
 
 class FormSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
+    
     class Meta:
         model = Form
-        fields = ['id', 'user', 'status', 'signed_on', 'data']
-        read_only_fields = ['id']
+        fields = ['id', 'user', 'user_id', 'username', 'status', 'signed_on', 'data']
+        read_only_fields = ['id', 'user_id', 'username']
 
 class UserSerializer(serializers.ModelSerializer):
     forms = FormSerializer(many=True, read_only=True)
     
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'password', 'role', 'status', 'first_name', 'last_name', 'forms']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['id', 'username', 'email', 'password', 'role', 'status', 'first_name', 'last_name', 'forms', 'signature']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'signature': {'read_only': True}
+        }
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(
