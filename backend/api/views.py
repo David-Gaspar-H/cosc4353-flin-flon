@@ -1,13 +1,15 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser, AllowAny
-from .models import CustomUser
-from .serializers import UserSerializer
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
+from .models import CustomUser, Form
+from .serializers import UserSerializer, FormSerializer
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
 from django.conf import settings
 import msal
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+import datetime
 
 class MSAuthView(APIView):
     permission_classes = [AllowAny]
@@ -115,17 +117,16 @@ class MSAuthCallbackView(APIView):
                 role='basicuser'  # Default role
             )
             return user, True  # New user
-    
 
 class UserListView(generics.ListCreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]# [IsAdminUser] use this in prod, just no permission rn for easy testing 
+    permission_classes = [AllowAny]  # [IsAdminUser] use this in prod, just no permission rn for easy testing 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]# [IsAdminUser] use this in prod, just no permission rn for easy testing 
+    permission_classes = [AllowAny]  # [IsAdminUser] use this in prod, just no permission rn for easy testing 
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -146,3 +147,149 @@ class LoginView(APIView):
         return Response({
             'error': 'Invalid credentials'
         }, status=401)
+
+class FormViewSet(viewsets.ModelViewSet):
+    serializer_class = FormSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        # Admin users can see all submitted forms that they haven't approved yet
+        if user.role == 'admin':
+            # Get forms that are submitted and not yet fully approved
+            # Exclude forms where the admin has already approved
+            submitted_forms = Form.objects.filter(status='submitted')
+            # Filter out forms where admin has already approved
+            admin_id = str(user.id)
+            forms_to_show = []
+            for form in submitted_forms:
+                admin_approvals = form.data.get('admin_approvals', [])
+                if admin_id not in admin_approvals:
+                    forms_to_show.append(form.id)
+            
+            return Form.objects.filter(id__in=forms_to_show)
+        
+        # Basic users can only see their own forms
+        return Form.objects.filter(user=user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class UserFormsView(generics.ListAPIView):
+    serializer_class = FormSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        # Check if the requesting user is an admin or the owner of the forms
+        if self.request.user.role == 'admin' or str(self.request.user.id) == user_id:
+            return Form.objects.filter(user_id=user_id)
+        return Form.objects.none()
+
+class FormSubmitView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, form_id):
+        form = get_object_or_404(Form, id=form_id, user=request.user)
+        
+        # Check if the form is in draft status
+        if form.status != 'draft':
+            return Response(
+                {"error": "Only forms in draft status can be submitted"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Required_signatures field exists in data
+        if 'required_signatures' not in form.data:
+            return Response(
+                {"error": "Form missing required_signatures field"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Set the form to submitted status
+        form.status = 'submitted'
+        form.save()
+        
+        serializer = FormSerializer(form)
+        return Response(serializer.data)
+
+class FormApproveView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, form_id):
+        # User is an admin
+        if request.user.role != 'admin':
+            return Response(
+                {"error": "Only administrators can approve forms"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        form = get_object_or_404(Form, id=form_id)
+        admin_user = request.user
+        
+        # Check if form is in submitted status
+        if form.status != 'submitted':
+            return Response(
+                {"error": "Only submitted forms can be approved"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if this admin has already approved this form
+        # store admin approvals in 'admin_approvals' list in the data field
+        if 'admin_approvals' not in form.data:
+            form.data['admin_approvals'] = []
+            
+        # If admin already approved, no duplicate approval
+        admin_id = str(admin_user.id)
+        if admin_id in form.data['admin_approvals']:
+            return Response(
+                {"error": "You have already approved this form"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Add admin ID to approvals list
+        form.data['admin_approvals'].append(admin_id)
+        
+        # subtract from required_signatures
+        if form.data['required_signatures'] > 0:
+            form.data['required_signatures'] -= 1
+            
+        # Check if all required signatures are collected
+        if form.data['required_signatures'] <= 0:
+            form.status = 'accepted'
+            form.signed_on = datetime.date.today()
+            
+        form.save()
+        
+        serializer = FormSerializer(form)
+        return Response(serializer.data)
+
+class FormRejectView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, form_id):
+        # Ensure user is an admin
+        if request.user.role != 'admin':
+            return Response(
+                {"error": "Only administrators can reject forms"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        form = get_object_or_404(Form, id=form_id)
+        
+        # Check if form has submitted status
+        if form.status != 'submitted':
+            return Response(
+                {"error": "Only submitted forms can be rejected"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Rejection reason if we want to do that 
+        if 'reason' in request.data:
+            form.data['rejection_reason'] = request.data['reason']
+            
+        form.status = 'rejected'
+        form.save()
+        
+        serializer = FormSerializer(form)
+        return Response(serializer.data)

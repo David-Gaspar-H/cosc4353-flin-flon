@@ -11,6 +11,7 @@ import AuthCallback from "./components/AuthCallback";
 import UserForms from "./components/UserForms.jsx";
 import UserFormRequest from "./components/UserFormRequest.jsx";
 import AdminFormApproval from "./components/AdminFormApproval.jsx";
+import FormsTable from "./components/FormsTable.jsx";
 
 function AppContent() {
 	const { user, logout } = useUser();
@@ -24,6 +25,7 @@ function AppContent() {
 				<Route path="/my-forms" element={<UserForms />} />
 				<Route path="/form-request" element={<UserFormRequest />} />
 				<Route path="/auth/callback" element={<AuthCallback />} />
+				<Route path="/admin-form" element={<FormsTable />} />
 
 				{/* Protected Routes */}
 				<Route
