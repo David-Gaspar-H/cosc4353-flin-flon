@@ -1,81 +1,75 @@
-import React, {useRef} from 'react';
-import SignatureCanvas from 'react-signature-canvas';
-import {Button, Paper} from "@mui/material";
+import React, { useRef } from "react";
+import SignatureCanvas from "react-signature-canvas";
+import { Button, Paper } from "@mui/material";
 import Stack from "@mui/material/Stack";
 
-const Signature = () => {
-    const signatureCanvasRef = useRef(null);
+const Signature = ({ onSave }) => {
+	const signatureCanvasRef = useRef(null);
 
-    const clearSignature = () => {
-        signatureCanvasRef.current.clear();
-    };
+	const clearSignature = () => {
+		signatureCanvasRef.current.clear();
+	};
 
-    const saveSignature = async () => {
-        const canvas = signatureCanvasRef.current.getCanvas();
+	const saveSignature = () => {
+		if (signatureCanvasRef.current.isEmpty()) {
+			alert("Please provide a signature before saving.");
+			return;
+		}
 
-        canvas.toBlob(async (blob) => {
-            const timestamp = new Date().toISOString();
-            const filename = `signature_${timestamp}.png`;
+		// Convert signature to base 64
+		const signatureData = signatureCanvasRef.current
+			.getCanvas()
+			.toDataURL("image/png");
 
-            const formData = new FormData();
-            formData.append('signature', blob, filename);
+		// Send signature data back to parent component
+		if (onSave) {
+			onSave(signatureData);
+		}
+	};
 
-            try {
-                const response = await fetch('https://localhost:8000/signature', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to save the signature');
-                }
-
-                const data = await response.json();
-                const savedUrl = data.path;
-
-                console.log('Signature saved at:', savedUrl);
-                // onSave(id, savedUrl);
-
-            } catch (error) {
-                console.error('Error saving signature:', error);
-            }
-        }, 'image/png');
-    };
-
-
-    return (
-        <Paper sx={{
-            width: "580px",
-            padding: 2,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "auto",
-        }}>
-            <SignatureCanvas
-                ref={signatureCanvasRef}
-                penColor="black"
-                canvasProps={{
-                    width: 500,
-                    height: 200,
-                    className: 'signature-canvas',
-                    style: {
-                        border: '2px solid black',
-                        marginBottom: 20,
-                    },
-                }}
-            />
-            <Stack spacing={2} direction="row">
-                <Button variant="contained" color="primary" onClick={clearSignature}>
-                    Clear Signature
-                </Button>
-                <Button variant="contained" color="secondary" onClick={saveSignature}>
-                    Save Signature
-                </Button>
-            </Stack>
-        </Paper>
-    );
+	return (
+		<Paper
+			sx={{
+				width: "580px",
+				padding: 2,
+				display: "flex",
+				flexDirection: "column",
+				justifyContent: "center",
+				alignItems: "center",
+				height: "auto",
+			}}
+		>
+			<SignatureCanvas
+				ref={signatureCanvasRef}
+				penColor="black"
+				canvasProps={{
+					width: 500,
+					height: 200,
+					className: "signature-canvas",
+					style: {
+						border: "2px solid black",
+						marginBottom: 20,
+					},
+				}}
+			/>
+			<Stack spacing={2} direction="row">
+				<Button
+					variant="contained"
+					color="primary"
+					onClick={clearSignature}
+				>
+					Clear Signature
+				</Button>
+				<Button
+					variant="contained"
+					color="secondary"
+					onClick={saveSignature}
+				>
+					Save Signature
+				</Button>
+			</Stack>
+		</Paper>
+	);
 };
 
 export default Signature;

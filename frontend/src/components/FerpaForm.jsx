@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
 	Grid2,
 	Paper,
@@ -38,13 +38,14 @@ const FerpaForm = () => {
 	const handleClose = () => {
 		setOpen(false);
 	};
+
 	// Form data state
 	const [formData, setFormData] = useState({
 		name: user ? `${user.first_name} ${user.last_name}` : "", // capture from user session
 		peopleSoftId: "",
 		date: [dateFriendlyFormat],
 		data: {
-			registrar: true,
+			registrar: false,
 			scholarships: false,
 			financialAid: false,
 			undergradScholars: false,
