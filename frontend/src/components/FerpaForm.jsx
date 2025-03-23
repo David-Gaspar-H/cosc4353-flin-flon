@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
 	Grid2,
 	Paper,
@@ -25,6 +26,7 @@ const FerpaForm = () => {
 	const currentDate = new Date();
 	const dateFriendlyFormat = currentDate.toLocaleDateString();
 	const { user } = useUser();
+	const navigate = useNavigate();
 
 	// To save the signature
 	const [signature, setSignature] = useState(null);
@@ -49,7 +51,7 @@ const FerpaForm = () => {
 	const [formData, setFormData] = useState({
 		id: generateRandomId(),
 		user: user?.id || "",
-		signed_on: [dateFriendlyFormat],
+		signed_on: dateFriendlyFormat,
 		status: "draft",
 		data: {
 			name: user ? `${user.first_name} ${user.last_name}` : "", // capture from user session
@@ -118,21 +120,15 @@ const FerpaForm = () => {
 		const updatedFormData = { ...formData, status };
 
 		try {
-			const response = await api.post(
-				`/forms/${updatedFormData.id}/submit/`,
-				{
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(updatedFormData),
-				}
-			);
+			const response = await api.post("/forms/", updatedFormData);
 
 			if (!response.ok) {
 				throw new Error("Failed to submit form.");
 			}
 
+			alert("Form submitted successfully! Pending review.");
 			console.log("Form submitted successfully with status: ", status);
-			window.location.reload();
+			navigate("/my-forms");
 		} catch (error) {
 			console.error("Error submitting form:", error);
 		}
@@ -645,7 +641,7 @@ const FerpaForm = () => {
 							<Button
 								variant="contained"
 								type="submit"
-								onClick={() => handleSubmit("pending")}
+								onClick={() => handleSubmit("submitted")}
 								sx={{
 									marginTop: 2,
 									display: "inline-block !important",
