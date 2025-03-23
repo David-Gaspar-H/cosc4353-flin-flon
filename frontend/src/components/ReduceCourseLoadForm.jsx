@@ -27,7 +27,6 @@ import {useUser} from "./context/UserContext";
 const ReduceCourseLoadForm = () => {
     // Get system date to prefill form field
     const currentDate = new Date();
-    const dateFriendlyFormat = currentDate.toLocaleDateString();
     const [open, setOpen] = useState(false);
     const [activeSignatureId, setActiveSignatureId] = useState(null);
     const {user} = useUser();
@@ -39,7 +38,7 @@ const ReduceCourseLoadForm = () => {
         name: user ? `${user.first_name} ${user.last_name}` : "",
         peopleSoftId: user?.psid || "",
         status: "",
-        date: dateFriendlyFormat,
+        signed_on: new Date().toISOString().split("T")[0],
         data: {
             required_signatures: 2,
             // Academic Difficulty Section
@@ -89,7 +88,7 @@ const ReduceCourseLoadForm = () => {
 
             // Signatures
             studentSignature: null,
-            studentSignatureDate: dateFriendlyFormat,
+            studentSignatureDate: new Date().toISOString().split("T")[0],
 
             advisorName: "",
             advisorSignature: null,
@@ -811,10 +810,18 @@ const ReduceCourseLoadForm = () => {
                                     <TextField
                                         variant="outlined"
                                         margin="normal"
-                                        name="studentSignatureDate"
+                                        name="signed_on"
                                         type="date"
-                                        // value={formData.data.date}
-                                        onChange={handleInputChange}
+                                        value={formData.data.studentSignatureDate || ""}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                data: {
+                                                    ...prev.data,
+                                                    studentSignatureDate: e.target.value,
+                                                },
+                                            }))
+                                        }
                                         fullWidth
                                     />
                                 </Box>

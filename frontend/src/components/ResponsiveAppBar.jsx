@@ -21,6 +21,7 @@ const user_pages = [
 const admin_pages = [
 	{ name: "Users", path: "/dashboard" },
 	{ name: "Approvals", path: "/form-approval" },
+	{ name: "Pending Forms", path: "/admin-form" },
 ];
 
 function ResponsiveAppBar({ user, logout }) {
