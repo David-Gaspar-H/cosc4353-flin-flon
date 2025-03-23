@@ -22,6 +22,7 @@ import ReduceCourseLoadForm from "./ReduceCourseLoadForm.jsx";
 import Footer from "./Footer.jsx";
 import FerpaForm from "./FerpaForm.jsx";
 import api from "../services/api.js";
+import {useUser} from "./context/UserContext.jsx";
 
 const columns = [
     {id: "applicant_name", label: "Applicant Name", minWidth: 170},
@@ -44,6 +45,7 @@ const FormsTable = () => {
     // pagination state
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const {user} = useUser();
 
 
     const fetchFormData = async () => {
@@ -95,9 +97,26 @@ const FormsTable = () => {
         setSelectedFormId(null);
     };
 
+    // const handleSubmit = async (form) => {
+    //     setActionLoading(true);
+    //     try {
+    //         const response = await api.post(`/forms/${form.id}/submit/`, form);
+    //
+    //         if (response.status === 200) {
+    //             // Refresh the table data
+    //             await fetchFormData();
+    //         }
+    //     } catch (error) {
+    //         console.error("Error submitting form: ", error);
+    //         setError("Failed to Submit form. Please try again.");
+    //     } finally {
+    //         setActionLoading(false);
+    //     }
+    // };
+
     const handleApprove = async (form) => {
         setActionLoading(true);
-        form.status = "accepted";
+        form.user = user.id;
         try {
             const response = await api.post(`/forms/${form.id}/approve/`, form);
 
@@ -114,8 +133,8 @@ const FormsTable = () => {
     };
 
     const handleReject = async (form) => {
+        form.user = user.id;
         setActionLoading(true);
-        form.status = "rejected";
         try {
             const response = await api.post(`/forms/${form.id}/reject/`, form);
 
@@ -221,6 +240,16 @@ const FormsTable = () => {
                                         <TableCell>{form.status}</TableCell>
                                         <TableCell>{form.signed_on}</TableCell>
                                         <TableCell>
+                                            {/*<Button*/}
+                                            {/*    variant="contained"*/}
+                                            {/*    color="primary"*/}
+                                            {/*    onClick={() => handleSubmit(form)}*/}
+                                            {/*    size="small"*/}
+                                            {/*    sx={{mr: 1}}*/}
+                                            {/*    disabled={actionLoading}*/}
+                                            {/*>*/}
+                                            {/*    {actionLoading ? "Processing..." : "Submit"}*/}
+                                            {/*</Button>*/}
                                             <Button
                                                 variant="contained"
                                                 color="success"
