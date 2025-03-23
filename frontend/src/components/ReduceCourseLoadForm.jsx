@@ -35,6 +35,7 @@ const ReduceCourseLoadForm = () => {
 
     // Form data state with all form fields
     const [formData, setFormData] = useState({
+        user: user ? user.id : null,
         name: user ? `${user.first_name} ${user.last_name}` : "",
         peopleSoftId: user?.psid || "",
         status: "",
@@ -230,7 +231,7 @@ const ReduceCourseLoadForm = () => {
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
 
-        const submitData = {...formData, status: 'Pending'};
+        const submitData = {...formData, status: 'submitted'};
         setFormData(submitData);
 
         try {
@@ -257,9 +258,8 @@ const ReduceCourseLoadForm = () => {
     const handleSave = (e) => {
         if (e) e.preventDefault();
 
-        const draftData = {...formData, status: 'Draft'};
+        const draftData = {...formData, status: 'draft'};
         setFormData(draftData);
-
         try {
             api.post('/forms/', draftData)
                 .then(response => {
