@@ -150,82 +150,140 @@ class LoginView(APIView):
 
 class FormViewSet(viewsets.ModelViewSet):
     serializer_class = FormSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def get_queryset(self):
-        user = self.request.user
-        # Admin users can see all submitted forms that they haven't approved yet
-        if user.role == 'admin':
-            # Get forms that are submitted and not yet fully approved
-            # Exclude forms where the admin has already approved
-            submitted_forms = Form.objects.filter(status='submitted')
-            # Filter out forms where admin has already approved
-            admin_id = str(user.id)
-            forms_to_show = []
-            for form in submitted_forms:
-                admin_approvals = form.data.get('admin_approvals', [])
-                if admin_id not in admin_approvals:
-                    forms_to_show.append(form.id)
-            
-            return Form.objects.filter(id__in=forms_to_show)
-        
-        # Basic users can only see their own forms
-        return Form.objects.filter(user=user)
+        # For list view, try to get user from query parameters
+        user_id = self.request.query_params.get('user')
+        if user_id:
+            return Form.objects.filter(user_id=user_id)
+        return Form.objects.all()
     
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        # Get user from request data
+        user_id = self.request.data.get('user')
+        if not user_id:
+            raise serializer.ValidationError({"user": "This field is required"})
+            
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            serializer.save(user=user)
+        except CustomUser.DoesNotExist:
+            raise serializer.ValidationError({"user": "User does not exist"})
+    
+    def update(self, request, *args, **kwargs):
+        # Get user from request data
+        user_id = request.data.get('user')
+        if not user_id:
+            return Response({"user": "This field is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Check if the user exists
+        try:
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({"user": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            
+        # Get the form instance
+        instance = self.get_object()
+        
+        # Verify the form belongs to the specified user
+        if instance.user.id != user.id:
+            return Response({"user": "This form does not belong to the specified user"}, status=status.HTTP_403_FORBIDDEN)
+            
+        return super().update(request, *args, **kwargs)
 
 class UserFormsView(generics.ListAPIView):
     serializer_class = FormSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def get_queryset(self):
         user_id = self.kwargs.get('user_id')
-        # Check if the requesting user is an admin or the owner of the forms
-        if self.request.user.role == 'admin' or str(self.request.user.id) == user_id:
-            return Form.objects.filter(user_id=user_id)
-        return Form.objects.none()
+        return Form.objects.filter(user_id=user_id)
 
 class FormSubmitView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def post(self, request, form_id):
-        form = get_object_or_404(Form, id=form_id, user=request.user)
-        
-        # Check if the form is in draft status
-        if form.status != 'draft':
+        # Get user from request data
+        user_id = request.data.get('user')
+        if not user_id:
             return Response(
-                {"error": "Only forms in draft status can be submitted"}, 
+                {"error": "user field is required"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Required_signatures field exists in data
-        if 'required_signatures' not in form.data:
+        try:
+            # Get the user
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
             return Response(
-                {"error": "Form missing required_signatures field"}, 
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "User does not exist"}, 
+                status=status.HTTP_404_NOT_FOUND
             )
         
-        # Set the form to submitted status
-        form.status = 'submitted'
-        form.save()
-        
-        serializer = FormSerializer(form)
-        return Response(serializer.data)
+        try:
+            form = Form.objects.get(id=form_id)
+            
+            if form.user.id != user.id:
+                return Response(
+                    {"error": "This form does not belong to the specified user"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            if form.status != 'draft':
+                return Response(
+                    {"error": "Only forms in draft status can be submitted"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            if 'required_signatures' not in form.data:
+                return Response(
+                    {"error": "Form missing required_signatures field"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            form.status = 'submitted'
+            form.save()
+            
+            serializer = FormSerializer(form)
+            return Response(serializer.data)
+            
+        except Form.DoesNotExist:
+            return Response(
+                {"error": f"Form with ID {form_id} does not exist"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 class FormApproveView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def post(self, request, form_id):
-        # User is an admin
-        if request.user.role != 'admin':
+        # Get admin user from request data
+        admin_id = request.data.get('user')
+        if not admin_id:
             return Response(
-                {"error": "Only administrators can approve forms"}, 
-                status=status.HTTP_403_FORBIDDEN
+                {"error": "user field is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
             )
+        
+        try:
+            # Get the admin user
+            admin_user = CustomUser.objects.get(id=admin_id)
             
+            # Check if user is an admin
+            if admin_user.role != 'admin':
+                return Response(
+                    {"error": "Only administrators can approve forms"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "User does not exist"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Get the form
         form = get_object_or_404(Form, id=form_id)
-        admin_user = request.user
         
         # Check if form is in submitted status
         if form.status != 'submitted':
@@ -235,26 +293,26 @@ class FormApproveView(APIView):
             )
         
         # Check if this admin has already approved this form
-        # store admin approvals in 'admin_approvals' list in the data field
+        # Store admin approvals in 'admin_approvals' list in the data field
         if 'admin_approvals' not in form.data:
             form.data['admin_approvals'] = []
             
-        # If admin already approved, no duplicate approval
-        admin_id = str(admin_user.id)
-        if admin_id in form.data['admin_approvals']:
+        # If admin already approved, prevent approval
+        admin_id_str = str(admin_user.id)
+        if admin_id_str in form.data['admin_approvals']:
             return Response(
                 {"error": "You have already approved this form"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
             
         # Add admin ID to approvals list
-        form.data['admin_approvals'].append(admin_id)
+        form.data['admin_approvals'].append(admin_id_str)
         
-        # subtract from required_signatures
+        # Sub from required_signatures
         if form.data['required_signatures'] > 0:
             form.data['required_signatures'] -= 1
             
-        # Check if all required signatures are collected
+        # Check sigs
         if form.data['required_signatures'] <= 0:
             form.status = 'accepted'
             form.signed_on = datetime.date.today()
@@ -265,26 +323,43 @@ class FormApproveView(APIView):
         return Response(serializer.data)
 
 class FormRejectView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def post(self, request, form_id):
-        # Ensure user is an admin
-        if request.user.role != 'admin':
+        # Get admin user from request data
+        admin_id = request.data.get('user')
+        if not admin_id:
             return Response(
-                {"error": "Only administrators can reject forms"}, 
-                status=status.HTTP_403_FORBIDDEN
+                {"error": "user field is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Get the admin user
+            admin_user = CustomUser.objects.get(id=admin_id)
+            
+            # Check if user is an admin
+            if admin_user.role != 'admin':
+                return Response(
+                    {"error": "Only administrators can reject forms"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "User does not exist"}, 
+                status=status.HTTP_404_NOT_FOUND
             )
             
         form = get_object_or_404(Form, id=form_id)
         
-        # Check if form has submitted status
+        # Check if form is in submitted status
         if form.status != 'submitted':
             return Response(
                 {"error": "Only submitted forms can be rejected"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
             
-        # Rejection reason if we want to do that 
+        # Add rejection reason if we want ot
         if 'reason' in request.data:
             form.data['rejection_reason'] = request.data['reason']
             
