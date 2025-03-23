@@ -41,6 +41,7 @@ const ReduceCourseLoadForm = () => {
         status: "",
         date: dateFriendlyFormat,
         data: {
+            required_signatures: 2,
             // Academic Difficulty Section
             initialAdjustmentIssues: false,
             iaiExplanation: "",
