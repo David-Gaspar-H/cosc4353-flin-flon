@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import Signature from "./Signature.jsx";
 import { useUser } from "./context/UserContext";
+import api from "../services/api";
 
 const FerpaForm = () => {
 	// Get system date to prefill form field
@@ -39,12 +40,19 @@ const FerpaForm = () => {
 		setOpen(false);
 	};
 
+	// Generate random form id
+	const generateRandomId = () => {
+		return Math.floor(Math.random() * 1000000);
+	};
+
 	// Form data state
 	const [formData, setFormData] = useState({
-		name: user ? `${user.first_name} ${user.last_name}` : "", // capture from user session
-		peopleSoftId: "",
-		date: [dateFriendlyFormat],
+		id: generateRandomId(),
+		user: user?.id || "",
+		signed_on: [dateFriendlyFormat],
+		status: "draft",
 		data: {
+			name: user ? `${user.first_name} ${user.last_name}` : "", // capture from user session
 			registrar: false,
 			scholarships: false,
 			financialAid: false,
@@ -73,6 +81,7 @@ const FerpaForm = () => {
 			otherReleaseTo: false,
 			otherReleaseToText: "",
 			password: "",
+			peopleSoftId: "",
 			signature: "",
 		},
 	});
@@ -104,16 +113,31 @@ const FerpaForm = () => {
 	};
 
 	// Handle form submit
-	const handleSubmit = async () => {
-		// try {
-		// 	const response = await fetch("", {
-		// 		method: "POST",
-		// 		headers: { "Content-Type": "application/json" },
-		// 		body: JSON.stringify(formData),
-		// 	});
-		// } catch (error) {
-		// 	console.error("Error submitting form:", error);
-		// }
+	const handleSubmit = async (status) => {
+		// Update formData
+		const updatedFormData = { ...formData, status };
+
+		try {
+			const response = await api.post(
+				`/forms/${updatedFormData.id}/submit/`,
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(updatedFormData),
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error("Failed to submit form.");
+			}
+
+			console.log("Form submitted successfully with status: ", status);
+			window.location.reload();
+		} catch (error) {
+			console.error("Error submitting form:", error);
+		}
+
+		console.log("Data being sent to the post request: ", updatedFormData);
 	};
 
 	const handleSave = (imageData) => {
@@ -134,7 +158,7 @@ const FerpaForm = () => {
 			justifyContent={"center"}
 			alignItems={"center"}
 			p={4}
-			sx={{ height: "100vh" }}
+			sx={{ minHeight: "fit-content" }}
 		>
 			<Paper sx={{ width: "100%", padding: 10, position: "relative" }}>
 				<Typography
@@ -166,13 +190,13 @@ const FerpaForm = () => {
 						Amended (FERPA)
 					</Typography>
 				</Box>
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={(e) => e.preventDefault()}>
 					<FormControl fullWidth margin={"normal"}>
 						<Box paddingTop={3}>
 							<Typography>
 								I,
 								<TextField
-									value={formData.name}
+									value={formData.data.name}
 									name="name"
 									onChange={handleChange}
 									size="small"
@@ -540,7 +564,7 @@ const FerpaForm = () => {
 							<TextField
 								variant="outlined"
 								margin="normal"
-								value={formData.name}
+								value={formData.data.name}
 								onChange={handleChange}
 								sx={{
 									marginRight: 2,
@@ -581,20 +605,20 @@ const FerpaForm = () => {
 								label="PSID"
 								margin="normal"
 								name="peopleSoftId"
-								value={formData.peopleSoftId}
+								value={formData.data.peopleSoftId}
 								onChange={handleChange}
 								marginRight={5}
 							/>
 							<Typography
 								variant="h6"
 								marginLeft={3}
-								name="date"
+								name="signed_on"
 								type="date"
 								sx={{
 									flexGrow: 1,
 								}}
 							>
-								Date: {formData.date}
+								Date: {formData.signed_on}
 							</Typography>
 						</Box>
 						<Stack
@@ -610,7 +634,7 @@ const FerpaForm = () => {
 								variant="contained"
 								type="button"
 								color="success"
-								onClick={handleSave}
+								onClick={() => handleSubmit("draft")}
 								sx={{
 									marginTop: 2,
 									display: "inline-block !important",
@@ -621,6 +645,7 @@ const FerpaForm = () => {
 							<Button
 								variant="contained"
 								type="submit"
+								onClick={() => handleSubmit("pending")}
 								sx={{
 									marginTop: 2,
 									display: "inline-block !important",
