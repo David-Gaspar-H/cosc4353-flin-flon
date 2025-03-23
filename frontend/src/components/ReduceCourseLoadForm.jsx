@@ -230,7 +230,7 @@ const ReduceCourseLoadForm = () => {
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
 
-        const submitData = {...formData, status: 'Pending'};
+        const submitData = {...formData, status: 'pending'};
         setFormData(submitData);
 
         try {
@@ -257,9 +257,8 @@ const ReduceCourseLoadForm = () => {
     const handleSave = (e) => {
         if (e) e.preventDefault();
 
-        const draftData = {...formData, status: 'Draft'};
+        const draftData = {...formData, status: 'draft'};
         setFormData(draftData);
-
         try {
             api.post('/forms/', draftData)
                 .then(response => {

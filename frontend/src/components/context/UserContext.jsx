@@ -19,6 +19,7 @@ export const UserProvider = ({ children }) => {
 	// Function to log in and set user data
 	const login = useCallback((userData) => {
 		const formattedUserData = {
+			id: userData.id,
 			first_name: userData.first_name,
 			last_name: userData.last_name,
 			role: userData.role,

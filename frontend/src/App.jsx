@@ -46,7 +46,7 @@ function AppContent() {
 				/>
 
 				<Route
-					path="//admin-form"
+					path="/admin-form"
 					element={
 						<ProtectedRoute allowedRoles={["admin"]}>
 							<FormsTable />
