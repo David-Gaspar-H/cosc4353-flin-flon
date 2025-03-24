@@ -51,7 +51,7 @@ const FerpaForm = () => {
 	const [formData, setFormData] = useState({
 		id: generateRandomId(),
 		user: user?.id || "",
-		signed_on: dateFriendlyFormat,
+		signed_on: new Date().toISOString().split("T")[0],
 		status: "draft",
 		data: {
 			name: user ? `${user.first_name} ${user.last_name}` : "", // capture from user session
