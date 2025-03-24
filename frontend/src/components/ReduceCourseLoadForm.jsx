@@ -26,7 +26,6 @@ import {useUser} from "./context/UserContext";
 
 const ReduceCourseLoadForm = () => {
     // Get system date to prefill form field
-    const currentDate = new Date();
     const [open, setOpen] = useState(false);
     const [activeSignatureId, setActiveSignatureId] = useState(null);
     const {user} = useUser();
@@ -35,11 +34,12 @@ const ReduceCourseLoadForm = () => {
     // Form data state with all form fields
     const [formData, setFormData] = useState({
         user: user ? user.id : null,
-        name: user ? `${user.first_name} ${user.last_name}` : "",
         peopleSoftId: user?.psid || "",
         status: "",
         signed_on: new Date().toISOString().split("T")[0],
         data: {
+            name: user ? `${user.first_name} ${user.last_name}` : "",
+            type: "Reduce Course Load",
             required_signatures: 2,
             // Academic Difficulty Section
             initialAdjustmentIssues: false,
@@ -790,7 +790,7 @@ const ReduceCourseLoadForm = () => {
                                         variant="outlined"
                                         margin="normal"
                                         name="name"
-                                        value={formData.name}
+                                        value={formData.data.name}
                                         onChange={handleInputChange}
                                         fullWidth
                                     />

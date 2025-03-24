@@ -26,6 +26,7 @@ import {useUser} from "./context/UserContext.jsx";
 
 const columns = [
     {id: "applicant_name", label: "Applicant Name", minWidth: 170},
+    {id: "Form", label: "Applicant Name", minWidth: 170},
     {id: "status", label: "Status", minWidth: 170},
     {id: "signed_on", label: "Date Submitted", minWidth: 170},
     {id: "action", label: "Action", minWidth: 150},
@@ -41,7 +42,6 @@ const FormsTable = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
-    const [usersData, setUsersData] = useState({});
     // pagination state
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -54,11 +54,6 @@ const FormsTable = () => {
             const response = await api.get("/forms/");
             const forms = response.data;
             setFormData(forms);
-
-            // After getting forms, fetch user details for each form
-            const userIds = forms.map(form => form.user_id);
-            fetchUserDetails(userIds);
-
             setError(null);
         } catch (error) {
             console.error("Error fetching forms: ", error);
@@ -68,24 +63,6 @@ const FormsTable = () => {
         }
     };
 
-    const fetchUserDetails = async (userIds) => {
-        try {
-            // Remove duplicates from userIds
-            const uniqueUserIds = [...new Set(userIds)];
-
-            // Fetch user details for each unique user ID
-            for (const userId of uniqueUserIds) {
-                const userResponse = await api.get(`/users/${userId}`);
-                setUsersData(prev => ({
-                    ...prev,
-                    [userId]: userResponse.data
-                }));
-            }
-        } catch (error) {
-            console.error("Error fetching user details: ", error);
-            setError(prev => prev || "Failed to load some user details.");
-        }
-    };
 
     useEffect(() => {
         fetchFormData();
@@ -232,11 +209,8 @@ const FormsTable = () => {
                                             },
                                         }}
                                     >
-                                        <TableCell>
-                                            {usersData[form.user_id]?.first_name && usersData[form.user_id]?.last_name
-                                                ? `${usersData[form.user_id]?.first_name} ${usersData[form.user_id]?.last_name}`
-                                                : `User ${form.user_id}`}
-                                        </TableCell>
+                                        <TableCell>{form.data?.name}</TableCell>
+                                        <TableCell>{form.data?.type}</TableCell>
                                         <TableCell>{form.status}</TableCell>
                                         <TableCell>{form.signed_on}</TableCell>
                                         <TableCell>
