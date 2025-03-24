@@ -15,11 +15,14 @@ import {
     CircularProgress,
     Alert,
     Box,
+    Typography,
+    TablePagination,
 } from "@mui/material";
 import ReduceCourseLoadForm from "./ReduceCourseLoadForm.jsx";
 import Footer from "./Footer.jsx";
 import FerpaForm from "./FerpaForm.jsx";
 import api from "../services/api.js";
+import {useUser} from "./context/UserContext.jsx";
 
 const columns = [
     {id: "applicant_name", label: "Applicant Name", minWidth: 170},
@@ -38,13 +41,24 @@ const FormsTable = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
+    const [usersData, setUsersData] = useState({});
+    // pagination state
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const {user} = useUser();
 
-    // Fetch form data
+
     const fetchFormData = async () => {
         setLoading(true);
         try {
             const response = await api.get("/forms/");
-            setFormData(response.data);
+            const forms = response.data;
+            setFormData(forms);
+
+            // After getting forms, fetch user details for each form
+            const userIds = forms.map(form => form.user_id);
+            fetchUserDetails(userIds);
+
             setError(null);
         } catch (error) {
             console.error("Error fetching forms: ", error);
@@ -54,20 +68,57 @@ const FormsTable = () => {
         }
     };
 
+    const fetchUserDetails = async (userIds) => {
+        try {
+            // Remove duplicates from userIds
+            const uniqueUserIds = [...new Set(userIds)];
+
+            // Fetch user details for each unique user ID
+            for (const userId of uniqueUserIds) {
+                const userResponse = await api.get(`/users/${userId}`);
+                setUsersData(prev => ({
+                    ...prev,
+                    [userId]: userResponse.data
+                }));
+            }
+        } catch (error) {
+            console.error("Error fetching user details: ", error);
+            setError(prev => prev || "Failed to load some user details.");
+        }
+    };
+
     useEffect(() => {
         fetchFormData();
-    }, []); // Empty dependency array ensures this runs only once
+    }, []);
+
 
     const handleClose = () => {
         setOpen(false);
         setSelectedFormId(null);
     };
 
+    // const handleSubmit = async (form) => {
+    //     setActionLoading(true);
+    //     try {
+    //         const response = await api.post(`/forms/${form.id}/submit/`, form);
+    //
+    //         if (response.status === 200) {
+    //             // Refresh the table data
+    //             await fetchFormData();
+    //         }
+    //     } catch (error) {
+    //         console.error("Error submitting form: ", error);
+    //         setError("Failed to Submit form. Please try again.");
+    //     } finally {
+    //         setActionLoading(false);
+    //     }
+    // };
+
     const handleApprove = async (form) => {
         setActionLoading(true);
-        form.status = "accepted";
+        form.user = user.id;
         try {
-            const response = await api.post(`/forms/`, form);
+            const response = await api.post(`/forms/${form.id}/approve/`, form);
 
             if (response.status === 200) {
                 // Refresh the table data
@@ -82,10 +133,10 @@ const FormsTable = () => {
     };
 
     const handleReject = async (form) => {
+        form.user = user.id;
         setActionLoading(true);
-        form.status = "rejected";
         try {
-            const response = await api.post(`/forms/`, form);
+            const response = await api.post(`/forms/${form.id}/reject/`, form);
 
             if (response.status === 200) {
                 // Refresh the table data
@@ -99,8 +150,28 @@ const FormsTable = () => {
         }
     };
 
+
+    // Handle page change
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    // Handle rows per page change
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    // Calculate paginated data
+    const getPaginatedData = () => {
+        return formData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    };
+
     return (
         <>
+            <Typography variant="h4" sx={{mb: 3}} align="center">
+                Forms
+            </Typography>
             <Box
                 sx={{
                     p: 3,
@@ -148,7 +219,7 @@ const FormsTable = () => {
                                     </TableCell>
                                 </TableRow>
                             ) : formData.length > 0 ? (
-                                formData.map((form, index) => (
+                                getPaginatedData().map((form, index) => (
                                     <TableRow
                                         key={index}
                                         sx={{
@@ -161,10 +232,24 @@ const FormsTable = () => {
                                             },
                                         }}
                                     >
-                                        <TableCell>{`${form.firstName} ${form.lastName}`}</TableCell>
+                                        <TableCell>
+                                            {usersData[form.user_id]?.first_name && usersData[form.user_id]?.last_name
+                                                ? `${usersData[form.user_id]?.first_name} ${usersData[form.user_id]?.last_name}`
+                                                : `User ${form.user_id}`}
+                                        </TableCell>
                                         <TableCell>{form.status}</TableCell>
                                         <TableCell>{form.signed_on}</TableCell>
                                         <TableCell>
+                                            {/*<Button*/}
+                                            {/*    variant="contained"*/}
+                                            {/*    color="primary"*/}
+                                            {/*    onClick={() => handleSubmit(form)}*/}
+                                            {/*    size="small"*/}
+                                            {/*    sx={{mr: 1}}*/}
+                                            {/*    disabled={actionLoading}*/}
+                                            {/*>*/}
+                                            {/*    {actionLoading ? "Processing..." : "Submit"}*/}
+                                            {/*</Button>*/}
                                             <Button
                                                 variant="contained"
                                                 color="success"
@@ -197,6 +282,18 @@ const FormsTable = () => {
                             )}
                         </TableBody>
                     </Table>
+                    {/* Add TablePagination component */}
+                    {!loading && formData.length > 0 && (
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 25]}
+                            component="div"
+                            count={formData.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                        />
+                    )}
                 </TableContainer>
 
                 {/* Dialog */}

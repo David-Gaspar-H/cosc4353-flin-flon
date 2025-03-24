@@ -25,7 +25,6 @@ function AppContent() {
 				<Route path="/my-forms" element={<UserForms />} />
 				<Route path="/form-request" element={<UserFormRequest />} />
 				<Route path="/auth/callback" element={<AuthCallback />} />
-				{/*<Route path="/admin-form" element={<FormsTable />} />*/}
 				{/* Protected Routes */}
 				<Route
 					path="/dashboard"
