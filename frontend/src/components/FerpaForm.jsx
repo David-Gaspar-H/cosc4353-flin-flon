@@ -118,17 +118,24 @@ const FerpaForm = () => {
 	const handleSubmit = async (status) => {
 		// Update formData
 		const updatedFormData = { ...formData, status };
+		setFormData(updatedFormData);
 
 		try {
+			if (
+				!updatedFormData.data.name ||
+				!updatedFormData.data.peopleSoftId
+			) {
+				alert("Please fill in your name and PeopleSoft ID");
+				return;
+			}
 			const response = await api.post("/forms/", updatedFormData);
 
-			if (!response.ok) {
-				throw new Error("Failed to submit form.");
+			if (response.status === 200 || response.status === 201) {
+				alert("Form submitted successfully!");
+				navigate("/my-forms"); // Navigate to success page
+			} else {
+				throw new Error("Server responded with an error");
 			}
-
-			alert("Form submitted successfully! Pending review.");
-			console.log("Form submitted successfully with status: ", status);
-			navigate("/my-forms");
 		} catch (error) {
 			console.error("Error submitting form:", error);
 		}
