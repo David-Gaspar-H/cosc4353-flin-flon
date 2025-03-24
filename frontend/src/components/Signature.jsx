@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, {useRef, useState} from 'react';
 import SignatureCanvas from 'react-signature-canvas';
-import { Button, Paper, Typography, Alert } from "@mui/material";
+import {Button, Paper, Typography, Alert} from "@mui/material";
 import Stack from "@mui/material/Stack";
 
-const Signature = ({ id, onSave }) => {
+const Signature = ({id, onSave}) => {
     const signatureCanvasRef = useRef(null);
     const [isSignatureEmpty, setIsSignatureEmpty] = useState(true);
     const [saveStatus, setSaveStatus] = useState(null); // null, 'success', 'error'
@@ -79,19 +79,19 @@ const Signature = ({ id, onSave }) => {
             />
 
             {saveStatus === 'empty' && (
-                <Alert severity="warning" sx={{ mb: 2, width: '100%' }}>
+                <Alert severity="warning" sx={{mb: 2, width: '100%'}}>
                     Please sign before saving.
                 </Alert>
             )}
 
             {saveStatus === 'success' && (
-                <Alert severity="success" sx={{ mb: 2, width: '100%' }}>
+                <Alert severity="success" sx={{mb: 2, width: '100%'}}>
                     Signature saved successfully!
                 </Alert>
             )}
 
             {saveStatus === 'error' && (
-                <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
+                <Alert severity="error" sx={{mb: 2, width: '100%'}}>
                     Error saving signature. Please try again.
                 </Alert>
             )}
