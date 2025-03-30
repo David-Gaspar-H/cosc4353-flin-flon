@@ -40,7 +40,6 @@ const AdminFormApproval = () => {
 					></FormTable>
 				</Paper>
 			</Grid2>
-			<Footer />
 		</>
 	);
 };

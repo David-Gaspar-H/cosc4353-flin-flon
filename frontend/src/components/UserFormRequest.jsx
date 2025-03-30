@@ -141,16 +141,6 @@ const UserFormRequest = () => {
 					{!openForm && <Box sx={{ flexGrow: 1 }} />}
 				</Paper>
 			</Container>
-			{/* Footer with clear separation */}
-			<Box
-				sx={{
-					mt: "auto",
-					pt: 3,
-					borderTop: "1px solid #e0e0e0",
-				}}
-			>
-				<Footer />
-			</Box>
 		</Box>
 	);
 };

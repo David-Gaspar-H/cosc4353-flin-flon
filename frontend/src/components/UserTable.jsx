@@ -130,6 +130,7 @@ const UserTable = () => {
 				overflow: "hidden",
 				backgroundColor: "transparent",
 				boxShadow: "none",
+                minHeight: "80vh",
 			}}
 		>
 			<Box mt={1} mb={1} display="flex" gap={1} justifyContent="flex-end">

@@ -46,8 +46,6 @@ const UserForms = () => {
 					></FormTable>
 				</Paper>
 			</Grid2>
-
-			<Footer />
 		</>
 	);
 };

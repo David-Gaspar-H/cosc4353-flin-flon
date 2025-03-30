@@ -12,7 +12,6 @@ const HomePage = () => {
 					</h1>
 				</div>
 			</section>
-			<Footer />
 		</>
 	);
 };

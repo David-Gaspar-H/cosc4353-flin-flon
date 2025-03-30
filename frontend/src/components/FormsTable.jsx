@@ -299,7 +299,6 @@ const FormsTable = () => {
                     </DialogContent>
                 </Dialog>
             </Box>
-            <Footer/>
         </>
     );
 };
