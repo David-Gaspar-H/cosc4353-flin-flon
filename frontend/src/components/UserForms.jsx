@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-// import ResponsiveAppBar from "./ResponsiveAppBar";
-import Footer from "./Footer";
 import { Grid2, Paper } from "@mui/material";
 import FormTable from "./FormTable";
 import api from "../services/api";
@@ -12,6 +10,9 @@ const UserForms = () => {
 
     useEffect(() => {
         const fetchForms = async () => {
+            if (!user) {
+                return; // Exit if no user is logged in
+            }
             try {
                 const response = await api.get(`/users/${user.id}`);
                 setUserForms(response.data.forms);
@@ -45,7 +46,7 @@ const UserForms = () => {
         };
 
         fetchForms();
-    }, [user.id]);
+    }, [user]);
 
     return (
         <>

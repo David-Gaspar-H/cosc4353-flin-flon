@@ -1,7 +1,4 @@
 import React from "react";
-import ResponsiveAppBar from "./ResponsiveAppBar.jsx";
-import Footer from "./Footer.jsx";
-
 const HomePage = () => {
 	return (
 		<>
