@@ -98,7 +98,7 @@ const FormTable = ({isAdmin, formsData, sx}) => {
                             >
                                 {isAdmin ? (
                                     <>
-                                        <TableCell>{`${row.data.name}`}</TableCell>
+                                        <TableCell>{row.data.name}</TableCell>
                                         <TableCell>{row.data.type}</TableCell>
                                         <TableCell>
                                             {row.signed_on}
