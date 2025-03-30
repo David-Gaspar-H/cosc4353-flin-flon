@@ -188,10 +188,12 @@ const FormTable = ({isAdmin, formsData, sx}) => {
                 <DialogTitle>View Form</DialogTitle>
                 <DialogContent>
                     {currentRow?.data.type === "Reduce Course Load" && (
-                        <ReduceCourseLoadForm formData={currentRow} mode="view"/>
+                        <ReduceCourseLoadForm formData={currentRow}
+                        mode={currentRow.status === 'draft' ? "edit" : "view"} />git
                     )}
                     {currentRow?.data.type === "Ferpa" && (
-                        <FerpaForm formData={currentRow} mode="view"/>
+                        <FerpaForm formData={currentRow}
+                        mode={currentRow.status === 'draft' ? "edit" : "view"} />
                     )}
                 </DialogContent>
                 <DialogActions>
