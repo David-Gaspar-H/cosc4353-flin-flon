@@ -24,21 +24,23 @@ import Signature from "./Signature.jsx";
 import Stack from "@mui/material/Stack";
 import {useUser} from "./context/UserContext";
 
-const ReduceCourseLoadForm = () => {
+const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
     // Get system date to prefill form field
     const [open, setOpen] = useState(false);
     const [activeSignatureId, setActiveSignatureId] = useState(null);
     const {user} = useUser();
     const navigate = useNavigate();
 
+    const isViewOnly = mode === "view";
+
     // Form data state with all form fields
-    const [formData, setFormData] = useState({
+    const defaultFormData = {
         user: user ? user.id : null,
-        peopleSoftId: user?.psid || "",
         status: "",
         signed_on: new Date().toISOString().split("T")[0],
         data: {
             name: user ? `${user.first_name} ${user.last_name}` : "",
+            peopleSoftId: 0,
             type: "Reduce Course Load",
             required_signatures: 2,
             // Academic Difficulty Section
@@ -98,8 +100,10 @@ const ReduceCourseLoadForm = () => {
             issoSignature: null,
             issoSignatureDate: ""
         }
+    };
 
-    });
+    const [formData, setFormData] = useState(propFormData || defaultFormData);
+
 
     // Function to open the signature dialog
     const handleOpenSignature = (signatureId) => {
@@ -127,7 +131,7 @@ const ReduceCourseLoadForm = () => {
     // Handle text input changes
     const handleInputChange = (e) => {
         // Check if the field is a top-level field or nested in data
-        if (e.target.name === 'name' || e.target.name === 'peopleSoftId' || e.target.name === 'date') {
+        if (e.target.name === 'date') {
             setFormData({
                 ...formData,
                 [e.target.name]: e.target.value
@@ -235,7 +239,7 @@ const ReduceCourseLoadForm = () => {
         setFormData(submitData);
 
         try {
-            if (!formData.name || !formData.peopleSoftId) {
+            if (!formData.data.name || !formData.data.peopleSoftId) {
                 alert("Please fill in your name and PeopleSoft ID");
                 return;
             }
@@ -319,6 +323,7 @@ const ReduceCourseLoadForm = () => {
                                         name="initialAdjustmentIssues"
                                         checked={formData.data.initialAdjustmentIssues}
                                         onChange={handleCheckboxChange}
+                                        disabled={isViewOnly}
                                     />
                                 }
                                 label="I am having initial difficulties with the English language, reading
@@ -331,6 +336,7 @@ const ReduceCourseLoadForm = () => {
                                 name="iaiExplanation"
                                 value={formData.data.iaiExplanation}
                                 onChange={handleInputChange}
+                                disabled={isViewOnly}
                             />
                             <Typography sx={{pt: 2}} variant={"h6"}>Improper Course Level Placement (ICLP)</Typography>
                             <FormControlLabel
@@ -344,6 +350,7 @@ const ReduceCourseLoadForm = () => {
                                         name="improperCoursePlacement"
                                         checked={formData.data.improperCoursePlacement}
                                         onChange={handleCheckboxChange}
+                                        disabled={isViewOnly}
                                     />
                                 }
                                 label="I am having difficulty with my class(es) due to improper course level placement
@@ -377,6 +384,7 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.classes[0].class}
                                     onChange={(e) => handleClassChange(0, 'class', e.target.value)}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
                                 <TextField
                                     label="Professor"
@@ -386,8 +394,10 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.classes[0].professor}
                                     onChange={(e) => handleClassChange(0, 'professor', e.target.value)}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
-                                <Button variant="text" onClick={() => handleOpenSignature("professor1")} fullWidth>
+                                <Button variant="text" onClick={() => handleOpenSignature("professor1")} fullWidth
+                                        disabled={isViewOnly}>
                                     Upload Signature
                                 </Button>
                                 <TextField
@@ -398,6 +408,7 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.classes[0].date}
                                     onChange={(e) => handleClassChange(0, 'date', e.target.value)}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
                             </Box>
                             <Box
@@ -421,6 +432,8 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.classes[1].class}
                                     onChange={(e) => handleClassChange(1, 'class', e.target.value)}
                                     fullWidth
+                                    disabled={isViewOnly}
+
                                 />
                                 <TextField
                                     label="Professor"
@@ -430,8 +443,10 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.classes[1].professor}
                                     onChange={(e) => handleClassChange(1, 'professor', e.target.value)}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
-                                <Button variant="text" onClick={() => handleOpenSignature("professor2")} fullWidth>
+                                <Button variant="text" onClick={() => handleOpenSignature("professor2")} fullWidth
+                                        disabled={isViewOnly}>
                                     Upload Signature
                                 </Button>
                                 <TextField
@@ -442,6 +457,7 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.classes[1].date}
                                     onChange={(e) => handleClassChange(1, 'date', e.target.value)}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
                             </Box>
                             <Box
@@ -465,6 +481,7 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.classes[2].class}
                                     onChange={(e) => handleClassChange(2, 'class', e.target.value)}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
                                 <TextField
                                     label="Professor"
@@ -474,8 +491,10 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.classes[2].professor}
                                     onChange={(e) => handleClassChange(2, 'professor', e.target.value)}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
-                                <Button variant="text" onClick={() => handleOpenSignature("professor3")} fullWidth>
+                                <Button variant="text" onClick={() => handleOpenSignature("professor3")} fullWidth
+                                        disabled={isViewOnly}>
                                     Upload Signature
                                 </Button>
                                 <TextField
@@ -486,6 +505,7 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.classes[2].date}
                                     onChange={(e) => handleClassChange(2, 'date', e.target.value)}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
                             </Box>
                         </Box>
@@ -502,6 +522,7 @@ const ReduceCourseLoadForm = () => {
                                         name="medicalReason"
                                         checked={formData.data.medicalReason}
                                         onChange={handleCheckboxChange}
+                                        disabled={isViewOnly}
                                     />
                                 }
                                 label="Valid medical reason must be proven with a supporting letter from a licensed
@@ -520,6 +541,7 @@ const ReduceCourseLoadForm = () => {
                                         name="medicalLetterAttached"
                                         checked={formData.data.medicalLetterAttached}
                                         onChange={handleCheckboxChange}
+                                        disabled={isViewOnly}
                                     />
                                 }
                                 label="Letter from a licensed medical doctor, doctor of osteopathy, a licensed
@@ -538,6 +560,7 @@ const ReduceCourseLoadForm = () => {
                                         name="finalSemester"
                                         checked={formData.data.finalSemester}
                                         onChange={handleCheckboxChange}
+                                        disabled={isViewOnly}
                                     />
                                 }
                                 label={
@@ -551,6 +574,7 @@ const ReduceCourseLoadForm = () => {
                                             value={formData.data.finalSemesterHours}
                                             onChange={handleInputChange}
                                             sx={{width: '150px', marginLeft: 1}}
+                                            disabled={isViewOnly}
                                         />hours of course work to complete
                                         my degree. I understand that if I am granted a reduced course load and fail to
                                         complete
@@ -573,6 +597,7 @@ const ReduceCourseLoadForm = () => {
                                         name="concurrentlyEnrolled"
                                         checked={formData.data.concurrentlyEnrolled}
                                         onChange={handleCheckboxChange}
+                                        disabled={isViewOnly}
                                     />
                                 }
                                 label={
@@ -590,6 +615,7 @@ const ReduceCourseLoadForm = () => {
                                             value={formData.data.hoursUH}
                                             onChange={handleInputChange}
                                             sx={{width: '150px', marginLeft: 1}}
+                                            disabled={isViewOnly}
                                         />
                                         hours at UH and
                                         <TextField
@@ -601,6 +627,8 @@ const ReduceCourseLoadForm = () => {
                                             value={formData.data.hoursOtherSchool}
                                             onChange={handleInputChange}
                                             sx={{width: '150px', marginLeft: 1}}
+                                            disabled={isViewOnly}
+
                                         />
                                         hours at
                                         <TextField
@@ -611,6 +639,7 @@ const ReduceCourseLoadForm = () => {
                                             value={formData.data.schoolName}
                                             onChange={handleInputChange}
                                             sx={{width: '200px', marginLeft: 1}}
+                                            disabled={isViewOnly}
                                         />
                                         . Attach proof of concurrent enrollment. Academic advisor signature is not
                                         required for this option,
@@ -627,6 +656,8 @@ const ReduceCourseLoadForm = () => {
                                             name="fallSemester"
                                             checked={formData.data.fallSemester}
                                             onChange={handleCheckboxChange}
+                                            disabled={isViewOnly}
+
                                         />
                                     }
                                     label="fall semester of 20"/>
@@ -642,6 +673,7 @@ const ReduceCourseLoadForm = () => {
                                         margin: '0',
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
+                                    disabled={isViewOnly}
                                 />{' '}
                                 <FormControlLabel
                                     control={
@@ -649,6 +681,7 @@ const ReduceCourseLoadForm = () => {
                                             name="springSemester"
                                             checked={formData.data.springSemester}
                                             onChange={handleCheckboxChange}
+                                            disabled={isViewOnly}
                                         />
                                     }
                                     label="spring semester of 20"/>
@@ -664,6 +697,7 @@ const ReduceCourseLoadForm = () => {
                                         margin: '0',
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
+                                    disabled={isViewOnly}
                                 />{' '}
                                 I want to drop the following class(es):
                                 <TextField
@@ -678,6 +712,7 @@ const ReduceCourseLoadForm = () => {
                                         margin: '0',
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
+                                    disabled={isViewOnly}
                                 />{' '},
                                 <TextField
                                     label={"Course Number"}
@@ -691,6 +726,7 @@ const ReduceCourseLoadForm = () => {
                                         margin: '0',
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
+                                    disabled={isViewOnly}
                                 />{' '}
                                 <TextField
                                     label={"Course Number"}
@@ -704,6 +740,7 @@ const ReduceCourseLoadForm = () => {
                                         margin: '0',
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
+                                    disabled={isViewOnly}
                                 />.
                                 After the drop, I will have a total of
                                 <TextField
@@ -719,6 +756,7 @@ const ReduceCourseLoadForm = () => {
                                         margin: '0',
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
+                                    disabled={isViewOnly}
                                 />
                                 hours (at UH) for the:
                                 <FormControlLabel
@@ -727,6 +765,7 @@ const ReduceCourseLoadForm = () => {
                                             name="remainingFallYearChecked"
                                             checked={formData.data.remainingFallYearChecked}
                                             onChange={handleCheckboxChange}
+                                            disabled={isViewOnly}
                                         />
                                     }
                                     label="Fall semester of 20"/>
@@ -742,6 +781,7 @@ const ReduceCourseLoadForm = () => {
                                         margin: '0',
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
+                                    disabled={isViewOnly}
                                 />.
                                 <FormControlLabel
                                     control={
@@ -749,6 +789,7 @@ const ReduceCourseLoadForm = () => {
                                             name="remainingSpringYearChecked"
                                             checked={formData.data.remainingSpringYearChecked}
                                             onChange={handleCheckboxChange}
+                                            disabled={isViewOnly}
                                         />
                                     }
                                     label="Spring semester of 20"/>
@@ -764,6 +805,7 @@ const ReduceCourseLoadForm = () => {
                                         margin: '0',
                                         '& input': {fontSize: '1rem', padding: '0.5rem'},
                                     }}
+                                    disabled={isViewOnly}
                                 />.
                             </Typography>
                             <Typography p>
@@ -793,8 +835,10 @@ const ReduceCourseLoadForm = () => {
                                         value={formData.data.name}
                                         onChange={handleInputChange}
                                         fullWidth
+                                        disabled={isViewOnly}
                                     />
-                                    <Button variant="text" onClick={() => handleOpenSignature("student")} fullWidth>
+                                    <Button variant="text" onClick={() => handleOpenSignature("student")} fullWidth
+                                            disabled={isViewOnly}>
                                         Upload Signature
                                     </Button>
                                     <TextField
@@ -803,9 +847,10 @@ const ReduceCourseLoadForm = () => {
                                         margin="normal"
                                         name="peopleSoftId"
                                         type="number"
-                                        value={formData.peopleSoftId}
+                                        value={formData.data.peopleSoftId}
                                         onChange={handleInputChange}
                                         fullWidth
+                                        disabled={isViewOnly}
                                     />
                                     <TextField
                                         variant="outlined"
@@ -823,6 +868,7 @@ const ReduceCourseLoadForm = () => {
                                             }))
                                         }
                                         fullWidth
+                                        disabled={isViewOnly}
                                     />
                                 </Box>
                             </Typography>
@@ -852,8 +898,10 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.advisorName}
                                     onChange={handleInputChange}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
-                                <Button variant="text" onClick={() => handleOpenSignature("advisor")} fullWidth>
+                                <Button variant="text" onClick={() => handleOpenSignature("advisor")} fullWidth
+                                        disabled={isViewOnly}>
                                     Upload Signature
                                 </Button>
                                 <TextField
@@ -864,6 +912,7 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.advisorSignatureDate}
                                     onChange={handleInputChange}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
                             </Box>
                             <Typography align={"center"} variant="h5" gutterBottom>
@@ -890,8 +939,10 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.issoName}
                                     onChange={handleInputChange}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
-                                <Button variant="text" onClick={() => handleOpenSignature("isso")} fullWidth>
+                                <Button variant="text" onClick={() => handleOpenSignature("isso")} fullWidth
+                                        disabled={isViewOnly}>
                                     Upload Signature
                                 </Button>
                                 <TextField
@@ -902,31 +953,38 @@ const ReduceCourseLoadForm = () => {
                                     value={formData.data.issoSignatureDate}
                                     onChange={handleInputChange}
                                     fullWidth
+                                    disabled={isViewOnly}
                                 />
                             </Box>
                         </Box>
-                        <Stack spacing={2} mt={2} direction={"row"} sx={{
-                            justifyContent: "flex-end",
-                            alignItems: "center",
-                        }}
-                        >
-                            <Button
-                                variant="contained"
-                                type="button"
-                                color="success"
-                                onClick={handleSave}
-                                sx={{marginTop: 2, display: 'inline-block !important'}}
-                            >
-                                Save
-                            </Button>
-                            <Button
-                                variant="contained"
-                                type="submit"
-                                sx={{marginTop: 2, display: 'inline-block !important'}}
-                            >
-                                Submit
-                            </Button>
-                        </Stack>
+                        {
+                            !isViewOnly && (
+                                <Stack spacing={2} mt={2} direction={"row"} sx={{
+                                    justifyContent: "flex-end",
+                                    alignItems: "center",
+                                }}
+                                >
+                                    <Button
+                                        variant="contained"
+                                        type="button"
+                                        color="success"
+                                        onClick={handleSave}
+                                        sx={{marginTop: 2, display: 'inline-block !important'}}
+                                        disabled={isViewOnly}
+                                    >
+                                        Save
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        sx={{marginTop: 2, display: 'inline-block !important'}}
+                                        disabled={isViewOnly}
+                                    >
+                                        Submit
+                                    </Button>
+                                </Stack>
+                            )
+                        }
                     </FormControl>
                 </form>
             </Paper>

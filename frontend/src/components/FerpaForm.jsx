@@ -21,10 +21,11 @@ import Signature from "./Signature.jsx";
 import {useUser} from "./context/UserContext";
 import api from "../services/api";
 
-const FerpaForm = () => {
+const FerpaForm = ({formData: propFormData, mode = "edit"}) => {
     const {user} = useUser();
     const navigate = useNavigate();
 
+    const isViewOnly = mode === "view";
 
     // Function to open the dialog
     const [open, setOpen] = useState(false);
@@ -37,14 +38,8 @@ const FerpaForm = () => {
         setOpen(false);
     };
 
-    // Generate random form id
-    const generateRandomId = () => {
-        return Math.floor(Math.random() * 1000000);
-    };
-
     // Form data state
-    const [formData, setFormData] = useState({
-        id: generateRandomId(),
+    const defaultFormData = {
         user: user?.id || "",
         signed_on: new Date().toISOString().split("T")[0],
         status: "draft",
@@ -83,7 +78,9 @@ const FerpaForm = () => {
             peopleSoftId: "",
             signature: "",
         },
-    });
+    }
+
+    const [formData, setFormData] = useState(propFormData || defaultFormData);
 
     const handleChange = (e) => {
         const {name, value, type, checked} = e.target;
@@ -205,6 +202,7 @@ const FerpaForm = () => {
                                         marginLeft: 1,
                                         marginRight: 1,
                                     }}
+                                    disabled={isViewOnly}
                                 />
                                 hereby voluntarily authorize officials in the
                                 University of Houston - Main identified below to
@@ -224,6 +222,7 @@ const FerpaForm = () => {
                                 name="registrar"
                                 label="Office of the University Registrar"
                                 onChange={handleChange}
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.scholarships}
@@ -232,6 +231,7 @@ const FerpaForm = () => {
                                 label="Scholarships and Financial Aid"
                                 onChange={handleChange}
                                 name="scholarships"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.financialAid}
@@ -240,6 +240,7 @@ const FerpaForm = () => {
                                 label="Student Financial Services"
                                 onChange={handleChange}
                                 name="financialAid"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.undergradScholars}
@@ -248,6 +249,7 @@ const FerpaForm = () => {
                                 label="Undergraduate Scholars @ UH (formally USD)"
                                 onChange={handleChange}
                                 name="undergradScholars"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.universityAdvancement}
@@ -256,6 +258,7 @@ const FerpaForm = () => {
                                 label="University Advancement"
                                 onChange={handleChange}
                                 name="universityAdvancement"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.deanOfStudentOffice}
@@ -264,6 +267,7 @@ const FerpaForm = () => {
                                 label="Dean of Students Office"
                                 onChange={handleChange}
                                 name="deanOfStudentOffice"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.otherOfficials}
@@ -277,6 +281,7 @@ const FerpaForm = () => {
                                 control={<Checkbox/>}
                                 onChange={handleChange}
                                 name="otherOfficials"
+                                disabled={isViewOnly}
                                 label={
                                     <>
                                         Other (Please Specify)
@@ -292,6 +297,7 @@ const FerpaForm = () => {
                                                 alignSelf: "center",
                                             }}
                                             onChange={handleChange}
+                                            disabled={isViewOnly}
                                         />
                                     </>
                                 }
@@ -316,6 +322,7 @@ const FerpaForm = () => {
                                 label="Academic Advising Profile/Information"
                                 onChange={handleChange}
                                 name="advising"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.academicRecords}
@@ -324,6 +331,7 @@ const FerpaForm = () => {
                                 label="Academic Records"
                                 onChange={handleChange}
                                 name="academicRecords"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.universityRecords}
@@ -332,6 +340,7 @@ const FerpaForm = () => {
                                 label="All University Records"
                                 onChange={handleChange}
                                 name="universityRecords"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.billingFinancialAid}
@@ -340,6 +349,7 @@ const FerpaForm = () => {
                                 label="Billing/Financial Aid"
                                 onChange={handleChange}
                                 name="billingFinancialAid"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.disciplinary}
@@ -348,6 +358,7 @@ const FerpaForm = () => {
                                 label="Disciplinary"
                                 onChange={handleChange}
                                 name="disciplinary"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.gradesTranscripts}
@@ -356,6 +367,7 @@ const FerpaForm = () => {
                                 label="Grades/Transcripts"
                                 onChange={handleChange}
                                 name="gradesTranscripts"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.housing}
@@ -364,6 +376,7 @@ const FerpaForm = () => {
                                 label="Housing"
                                 onChange={handleChange}
                                 name="housing"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.photos}
@@ -372,6 +385,7 @@ const FerpaForm = () => {
                                 label="Photos"
                                 onChange={handleChange}
                                 name="photos"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.scholarshipsHonors}
@@ -380,6 +394,7 @@ const FerpaForm = () => {
                                 label="Scholarships and/or Honors"
                                 onChange={handleChange}
                                 name="scholarshipsHonors"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.otherCategories}
@@ -393,6 +408,7 @@ const FerpaForm = () => {
                                     alignItems: "center",
                                 }}
                                 control={<Checkbox/>}
+                                disabled={isViewOnly}
                                 label={
                                     <>
                                         Other (Please Specify)
@@ -409,6 +425,7 @@ const FerpaForm = () => {
                                                 alignSelf: "center",
                                             }}
                                             onChange={handleChange}
+                                            disabled={isViewOnly}
                                         />
                                     </>
                                 }
@@ -429,6 +446,7 @@ const FerpaForm = () => {
                                             marginLeft: 1,
                                             marginRight: 1,
                                         }}
+                                        disabled={isViewOnly}
                                     />
                                 </Tooltip>
                                 for the purpose of informing:
@@ -445,6 +463,7 @@ const FerpaForm = () => {
                                 label="Family"
                                 onChange={handleChange}
                                 name="family"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.educationalInstitutions}
@@ -453,6 +472,7 @@ const FerpaForm = () => {
                                 label="Educational Institution"
                                 onChange={handleChange}
                                 name="educationalInstitutions"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.honorAward}
@@ -461,6 +481,7 @@ const FerpaForm = () => {
                                 label="Honor or Award"
                                 onChange={handleChange}
                                 name="honorAward"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.employer}
@@ -469,6 +490,7 @@ const FerpaForm = () => {
                                 label="Employer/Prospective Employer"
                                 onChange={handleChange}
                                 name="employer"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.publicOrMedia}
@@ -477,11 +499,13 @@ const FerpaForm = () => {
                                 label="Public or Media of Scholarship"
                                 onChange={handleChange}
                                 name="publicOrMedia"
+                                disabled={isViewOnly}
                             />
                             <FormControlLabel
                                 checked={formData.data.otherReleaseTo}
                                 onChange={handleChange}
                                 name="otherReleaseTo"
+                                disabled={isViewOnly}
                                 sx={{
                                     pl: 10,
                                     pt: 1,
@@ -505,6 +529,7 @@ const FerpaForm = () => {
                                                 pl: 1,
                                                 alignSelf: "center",
                                             }}
+                                            disabled={isViewOnly}
                                         />
                                     </>
                                 }
@@ -521,6 +546,7 @@ const FerpaForm = () => {
                                     name="password"
                                     value={formData.data.password}
                                     onChange={handleChange}
+                                    disabled={isViewOnly}
                                     sx={{
                                         width: "150px",
                                         pl: 1,
@@ -570,6 +596,7 @@ const FerpaForm = () => {
                                 sx={{
                                     marginRight: 2,
                                 }}
+                                disabled={isViewOnly}
                             />
                             <Button
                                 variant="outlined"
@@ -582,6 +609,7 @@ const FerpaForm = () => {
                                     marginRight: 5,
                                     height: "50px",
                                 }}
+                                disabled={isViewOnly}
                             >
                                 Upload Signature
                             </Button>
@@ -609,6 +637,7 @@ const FerpaForm = () => {
                                 value={formData.data.peopleSoftId}
                                 onChange={handleChange}
                                 marginRight={5}
+                                disabled={isViewOnly}
                             />
                             <Typography
                                 variant="h6"
@@ -622,39 +651,45 @@ const FerpaForm = () => {
                                 Date: {formData.signed_on}
                             </Typography>
                         </Box>
-                        <Stack
-                            spacing={2}
-                            mt={2}
-                            direction={"row"}
-                            sx={{
-                                justifyContent: "flex-end",
-                                alignItems: "center",
-                            }}
-                        >
-                            <Button
-                                variant="contained"
-                                type="button"
-                                color="success"
-                                onClick={() => handleSubmit("draft")}
-                                sx={{
-                                    marginTop: 2,
-                                    display: "inline-block !important",
-                                }}
-                            >
-                                Save
-                            </Button>
-                            <Button
-                                variant="contained"
-                                type="submit"
-                                onClick={() => handleSubmit("submitted")}
-                                sx={{
-                                    marginTop: 2,
-                                    display: "inline-block !important",
-                                }}
-                            >
-                                Submit
-                            </Button>
-                        </Stack>
+                        {
+                            !isViewOnly && (
+                                <Stack
+                                    spacing={2}
+                                    mt={2}
+                                    direction={"row"}
+                                    sx={{
+                                        justifyContent: "flex-end",
+                                        alignItems: "center",
+                                    }}
+                                >
+                                    <Button
+                                        variant="contained"
+                                        type="button"
+                                        color="success"
+                                        onClick={() => handleSubmit("draft")}
+                                        disabled={isViewOnly}
+                                        sx={{
+                                            marginTop: 2,
+                                            display: "inline-block !important",
+                                        }}
+                                    >
+                                        Save
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        disabled={isViewOnly}
+                                        onClick={() => handleSubmit("submitted")}
+                                        sx={{
+                                            marginTop: 2,
+                                            display: "inline-block !important",
+                                        }}
+                                    >
+                                        Submit
+                                    </Button>
+                                </Stack>
+                            )
+                        }
                     </FormControl>
                 </form>
             </Paper>
