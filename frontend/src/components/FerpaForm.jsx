@@ -608,10 +608,25 @@ const FerpaForm = ({formData: propFormData, mode = "edit"}) => {
                                     marginLeft: 1,
                                     marginRight: 5,
                                     height: "50px",
+                                    backgroundImage: formData.data.signature
+                                        ? `url(${formData.data.signature})`
+                                        : 'none',
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center top",
                                 }}
                                 disabled={isViewOnly}
                             >
-                                Upload Signature
+                                {formData.data.signature ? (
+                                    <Box sx={{
+                                        paddingTop: "50px",
+                                    }}>
+                                        {/* Small label below the signature */}
+                                        <span
+                                            style={{fontSize: "10px", color: "gray"}}>Signature</span>
+                                    </Box>
+                                ) : (
+                                    "Upload Signature"
+                                )}
                             </Button>
                             <Dialog open={open} onClose={handleClose}>
                                 <DialogTitle>Signature</DialogTitle>

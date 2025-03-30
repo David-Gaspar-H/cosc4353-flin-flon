@@ -397,8 +397,25 @@ const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
                                     disabled={isViewOnly}
                                 />
                                 <Button variant="text" onClick={() => handleOpenSignature("professor1")} fullWidth
-                                        disabled={isViewOnly}>
-                                    Upload Signature
+                                        disabled={isViewOnly}
+                                        sx={{
+                                            backgroundImage: formData.data.classes[0].signature
+                                                ? `url(${formData.data.classes[0].signature})`
+                                                : 'none',
+                                            backgroundSize: "cover",
+                                            backgroundPosition: "center top",
+                                        }}>
+                                    {formData.data.classes[0].signature ? (
+                                        <Box sx={{
+                                            paddingTop: "50px",
+                                        }}>
+                                            {/* Small label below the signature */}
+                                            <span
+                                                style={{fontSize: "10px", color: "gray"}}>Signature</span>
+                                        </Box>
+                                    ) : (
+                                        "Upload Signature"
+                                    )}
                                 </Button>
                                 <TextField
                                     variant="outlined"
@@ -446,8 +463,25 @@ const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
                                     disabled={isViewOnly}
                                 />
                                 <Button variant="text" onClick={() => handleOpenSignature("professor2")} fullWidth
-                                        disabled={isViewOnly}>
-                                    Upload Signature
+                                        disabled={isViewOnly}
+                                        sx={{
+                                            backgroundImage: formData.data.classes[1].signature
+                                                ? `url(${formData.data.classes[1].signature})`
+                                                : 'none',
+                                            backgroundSize: "cover",
+                                            backgroundPosition: "center top",
+                                        }}>
+                                    {formData.data.classes[1].signature ? (
+                                        <Box sx={{
+                                            paddingTop: "50px",
+                                        }}>
+                                            {/* Small label below the signature */}
+                                            <span
+                                                style={{fontSize: "10px", color: "gray"}}>Signature</span>
+                                        </Box>
+                                    ) : (
+                                        "Upload Signature"
+                                    )}
                                 </Button>
                                 <TextField
                                     variant="outlined"
@@ -494,8 +528,25 @@ const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
                                     disabled={isViewOnly}
                                 />
                                 <Button variant="text" onClick={() => handleOpenSignature("professor3")} fullWidth
-                                        disabled={isViewOnly}>
-                                    Upload Signature
+                                        disabled={isViewOnly}
+                                        sx={{
+                                            backgroundImage: formData.data.classes[2].signature
+                                                ? `url(${formData.data.classes[2].signature})`
+                                                : 'none',
+                                            backgroundSize: "cover",
+                                            backgroundPosition: "center top",
+                                        }}>
+                                    {formData.data.classes[2].signature ? (
+                                        <Box sx={{
+                                            paddingTop: "50px",
+                                        }}>
+                                            {/* Small label below the signature */}
+                                            <span
+                                                style={{fontSize: "10px", color: "gray"}}>Signature</span>
+                                        </Box>
+                                    ) : (
+                                        "Upload Signature"
+                                    )}
                                 </Button>
                                 <TextField
                                     variant="outlined"
@@ -838,8 +889,25 @@ const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
                                         disabled={isViewOnly}
                                     />
                                     <Button variant="text" onClick={() => handleOpenSignature("student")} fullWidth
-                                            disabled={isViewOnly}>
-                                        Upload Signature
+                                            disabled={isViewOnly}
+                                            sx={{
+                                                backgroundImage: formData.data.studentSignature
+                                                    ? `url(${formData.data.studentSignature})`
+                                                    : 'none',
+                                                backgroundSize: "cover",
+                                                backgroundPosition: "center top",
+                                            }}>
+                                        {formData.data.studentSignature ? (
+                                            <Box sx={{
+                                                paddingTop: "50px",
+                                            }}>
+                                                {/* Small label below the signature */}
+                                                <span
+                                                    style={{fontSize: "10px", color: "gray"}}>Signature</span>
+                                            </Box>
+                                        ) : (
+                                            "Upload Signature"
+                                        )}
                                     </Button>
                                     <TextField
                                         label="PSID"
@@ -901,9 +969,26 @@ const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
                                     disabled={isViewOnly}
                                 />
                                 <Button variant="text" onClick={() => handleOpenSignature("advisor")} fullWidth
-                                        disabled={isViewOnly}>
-                                    Upload Signature
-                                </Button>
+                                        disabled={isViewOnly}
+                                        sx={{
+                                        backgroundImage: formData.data.advisorSignature
+                                            ? `url(${formData.data.advisorSignature})`
+                                            : 'none',
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center top",
+                                    }}>
+                                        {formData.data.advisorSignature ? (
+                                            <Box sx={{
+                                                paddingTop: "50px",
+                                            }}>
+                                                {/* Small label below the signature */}
+                                                <span
+                                                    style={{fontSize: "10px", color: "gray"}}>Signature</span>
+                                            </Box>
+                                        ) : (
+                                            "Upload Signature"
+                                        )}
+                                    </Button>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -942,9 +1027,26 @@ const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
                                     disabled={isViewOnly}
                                 />
                                 <Button variant="text" onClick={() => handleOpenSignature("isso")} fullWidth
-                                        disabled={isViewOnly}>
-                                    Upload Signature
-                                </Button>
+                                        disabled={isViewOnly}
+                                        sx={{
+                                        backgroundImage: formData.data.issoSignature
+                                            ? `url(${formData.data.issoSignature})`
+                                            : 'none',
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center top",
+                                    }}>
+                                        {formData.data.issoSignature ? (
+                                            <Box sx={{
+                                                paddingTop: "50px",
+                                            }}>
+                                                {/* Small label below the signature */}
+                                                <span
+                                                    style={{fontSize: "10px", color: "gray"}}>Signature</span>
+                                            </Box>
+                                        ) : (
+                                            "Upload Signature"
+                                        )}
+                                    </Button>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
