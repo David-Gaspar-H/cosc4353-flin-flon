@@ -35,7 +35,7 @@ const FormTable = ({ isAdmin, formsData, sx }) => {
 				{ id: "extra_requestor", label: "Needs Another Requestor?" },
 			]
 		: [
-				{ id: "form_name", label: "Form Name" },
+				{ id: "type", label: "Form Name" },
 				{ id: "view", label: "View Form" },
 				{ id: "submitted", label: "Date Submitted" },
 				{ id: "status", label: "Status" },
@@ -100,10 +100,10 @@ const FormTable = ({ isAdmin, formsData, sx }) => {
 							>
 								{isAdmin ? (
 									<>
-										<TableCell>{`${row.firstName} ${row.lastName}`}</TableCell>
-										<TableCell>{row.formName}</TableCell>
+										<TableCell>{`${row.data.name}`}</TableCell>
+										<TableCell>{row.data.type}</TableCell>
 										<TableCell>
-											{row.dateSubmitted}
+											{row.signed_on}
 										</TableCell>
 										<TableCell>
 											<Button
@@ -138,7 +138,7 @@ const FormTable = ({ isAdmin, formsData, sx }) => {
 									</>
 								) : (
 									<>
-										<TableCell>{row.formName}</TableCell>
+										<TableCell>{row.data.type}</TableCell>
 										<TableCell>
 											<Button
 												variant="contained"
@@ -156,17 +156,17 @@ const FormTable = ({ isAdmin, formsData, sx }) => {
 											</Button>
 										</TableCell>
 										<TableCell>
-											{row.dateSubmitted}
+											{row.signed_on}
 										</TableCell>
 										<TableCell>
 											<Typography
 												sx={{
 													fontWeight: "bold",
 													color:
-														row.status === "Pending"
+														row.status === "draft"
 															? "orange"
 															: row.status ===
-																  "Approved"
+																  "accepted"
 																? "green"
 																: "red",
 												}}
@@ -186,10 +186,10 @@ const FormTable = ({ isAdmin, formsData, sx }) => {
 			<Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
 				<DialogTitle>View Form</DialogTitle>
 				<DialogContent>
-					{currentRow?.formName === "Reduce Course Load" && (
+					{currentRow?.data.type === "Reduce Course Load" && (
 						<ReduceCourseLoadForm />
 					)}
-					{currentRow?.formName === "FERPA" && <FerpaForm />}
+					{currentRow?.data.type === "Ferpa" && <FerpaForm />}
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose} color="primary">
