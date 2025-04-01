@@ -19,6 +19,11 @@ services:
       dockerfile: frontend/Dockerfile
     container_name: react-frontend
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+        - CHOKIDAR_USEPOLLING=true

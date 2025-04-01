@@ -7,6 +7,9 @@ export default defineConfig({
     plugins: [react(),
         tailwindcss()],
     server: {
+        watch: {
+            usePolling: true,  // Docker detects file changes
+        },
         port: 3000,
     },
 })
