@@ -47,3 +47,18 @@ npm install
 ```
 npm run dev
 ```
+
+
+## Docker
+
+- To make docker image
+```
+docker-compose build
+```
+
+- To run docker image
+```
+docker-compose up
+```
+
+To run app http://localhost:3000/
