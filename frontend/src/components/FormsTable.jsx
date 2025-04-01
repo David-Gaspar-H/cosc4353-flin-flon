@@ -19,7 +19,6 @@ import {
     TablePagination,
 } from "@mui/material";
 import ReduceCourseLoadForm from "./ReduceCourseLoadForm.jsx";
-import Footer from "./Footer.jsx";
 import FerpaForm from "./FerpaForm.jsx";
 import api from "../services/api.js";
 import {useUser} from "./context/UserContext.jsx";
@@ -31,9 +30,6 @@ const columns = [
     {id: "signed_on", label: "Date Submitted", minWidth: 170},
     {id: "action", label: "Action", minWidth: 150},
 ];
-
-// Form types
-const formTypes = ["Reduce Course Load", "FERPA"];
 
 const FormsTable = () => {
     const [open, setOpen] = useState(false);
@@ -230,7 +226,7 @@ const FormsTable = () => {
                                                 onClick={() => handleApprove(form)}
                                                 size="small"
                                                 sx={{mr: 1}}
-                                                disabled={actionLoading}
+                                                disabled={actionLoading || form.status !== 'submitted'}
                                             >
                                                 {actionLoading ? "Processing..." : "Approve"}
                                             </Button>
@@ -240,7 +236,7 @@ const FormsTable = () => {
                                                 onClick={() => handleReject(form)}
                                                 size="small"
                                                 sx={{mr: 1}}
-                                                disabled={actionLoading}
+                                                disabled={actionLoading || form.status !== 'submitted'}
                                             >
                                                 {actionLoading ? "Processing..." : "Reject"}
                                             </Button>
