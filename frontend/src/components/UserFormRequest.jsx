@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import ReduceCourseLoadForm from "./ReduceCourseLoadForm";
 import FerpaForm from "./FerpaForm";
+import SsnChange from "./SsnChange";
+
 
 const UserFormRequest = () => {
 	const [openForm, setOpenForm] = useState(null);
@@ -28,6 +30,8 @@ const UserFormRequest = () => {
 				return <ReduceCourseLoadForm />;
 			case "FERPA":
 				return <FerpaForm />;
+			case "SsnChange":
+				return <SsnChange />;
 			default:
 				return null;
 		}
@@ -113,6 +117,30 @@ const UserFormRequest = () => {
 									fullWidth
 									sx={{ mt: 2 }}
 									onClick={() => handleFormClick("FERPA")}
+								>
+									Fill out Form
+								</Button>
+							</CardContent>
+						</Card>
+						<Card
+							sx={{
+								width: { xs: "100%", md: "500px" },
+								boxShadow: 5,
+								borderRadius: 2,
+								padding: 2,
+							}}
+						>
+							<CardContent>
+								<Typography variant="h6" align="center">
+									SSN Change
+								</Typography>
+								<Button
+									variant="contained"
+									fullWidth
+									sx={{ mt: 2 }}
+									onClick={() =>
+										handleFormClick("SsnChange")
+									}
 								>
 									Fill out Form
 								</Button>
