@@ -55,7 +55,7 @@ const SsnChange = ({formData: propFormData, mode = "edit"}) => {
             sectionB: false,            
             marriageDivorce: false,
             courtOrder: false,
-            correctionOfError: false,
+            correctionOfError1: false,
             fromFirstName: "",
             fromMiddleName: "",
             fromLastName: "",
@@ -64,7 +64,7 @@ const SsnChange = ({formData: propFormData, mode = "edit"}) => {
             toMiddleName: "",
             toLastName: "",
             toSuffix: "",
-            correctionOfError: false,
+            correctionOfError2: false,
             additionOfSsnToUniversityRecords: false,
             fromSsn: "",
             toSsn: "",
@@ -323,7 +323,7 @@ const SsnChange = ({formData: propFormData, mode = "edit"}) => {
                         checked={formData.data.registrar}
                         sx={{pl: 10, pt: 0.5}}
                         control={<Checkbox/>}
-                        name="correctionOfError"
+                        name="correctionOfError1"
                         label="Correction of error"
                         onChange={handleChange}
                         disabled={isViewOnly}
@@ -469,7 +469,7 @@ const SsnChange = ({formData: propFormData, mode = "edit"}) => {
                             checked={formData.data.registrar}
                             sx={{pl: 10, pt: 0.5}}
                             control={<Checkbox/>}
-                            name="correctionOfError"
+                            name="correctionOfError2"
                             label="Correction of error"
                             onChange={handleChange}
                             disabled={isViewOnly}

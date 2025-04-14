@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import ReduceCourseLoadForm from "./ReduceCourseLoadForm.jsx";
 import FerpaForm from "./FerpaForm.jsx";
+import SsnChange from "./SsnChange.jsx";
 
 const FormTable = ({isAdmin, formsData, sx}) => {
     const [open, setOpen] = useState(false);
@@ -193,6 +194,10 @@ const FormTable = ({isAdmin, formsData, sx}) => {
                     )}
                     {currentRow?.data.type === "Ferpa" && (
                         <FerpaForm formData={currentRow}
+                        mode={currentRow.status === 'draft' ? "edit" : "view"} />
+                    )}                    
+                    {currentRow?.data.type === "SSN" && (
+                        <SsnChange formData={currentRow}
                         mode={currentRow.status === 'draft' ? "edit" : "view"} />
                     )}
                 </DialogContent>
