@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Unit
+from .models import CustomUser, Unit, Approver
 
 
 class UnitAdmin(admin.ModelAdmin):
@@ -24,3 +24,12 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
+
+
+class ApproverAdmin(admin.ModelAdmin):
+    list_display = ("user", "scope", "unit")
+    list_filter = ("scope", "unit")
+    search_fields = ("user__username", "user__email")
+
+
+admin.site.register(Approver, ApproverAdmin)
