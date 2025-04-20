@@ -38,6 +38,9 @@ class Form(models.Model):
     # JSON field to store JSON data
     data = JSONField(default=dict)  # Use JSONField for Django >= 3.1
 
+    # Matches form with a specific approval workflow
+    type = models.CharField(max_length=100, default="general")
+
     def __str__(self):
         return f"Form {self.id} - {self.status}"
 
@@ -108,3 +111,51 @@ class Delegation(models.Model):
     class Meta:
         verbose_name = "Delegator"
         verbose_name_plural = "Delegators"
+
+
+class Workflow(models.Model):
+    form_type = models.CharField(max_length=100)
+    origin_unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Workflow"
+        verbose_name_plural = "Workflows"
+
+    def __str__(self):
+        return f"{self.name} ({self.form_type} from {self.origin_unit})"
+
+
+class WorkflowStep(models.Model):
+    workflow = models.ForeignKey(
+        Workflow, related_name="steps", on_delete=models.CASCADE
+    )
+    step_number = models.PositiveIntegerField()
+    role_required = models.CharField(max_length=100)  # e.g. dept-chair
+    approver_unit = models.ForeignKey(
+        Unit, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    is_optional = models.BooleanField(default=False)
+    approvals_required = models.PositiveIntegerField(
+        default=1
+    )  # number of approvals needed
+
+    class Meta:
+        ordering = ["step_number"]
+
+    def __str__(self):
+        return f"{self.workflow.name} - Step {self.step_number}"
+
+
+class FormApprovalStep(models.Model):
+    form = models.ForeignKey(
+        Form, on_delete=models.CASCADE, related_name="approval_steps"
+    )
+    step_number = models.PositiveIntegerField()
+    approver = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    is_completed = models.BooleanField(default=False)
+    approved_on = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["step_number"]
