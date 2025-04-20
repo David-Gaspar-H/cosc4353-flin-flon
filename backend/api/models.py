@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import JSONField  # For Django >= 3.1
+from django.core.exceptions import ValidationError
 
 
 # Create your models here.
@@ -57,3 +58,29 @@ class Unit(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Approver(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    scope = models.CharField(
+        choices=[("unit", "Unit"), ("org", "Organization")], default="unit"
+    )
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.scope} approver"
+
+    def clean(self):
+        # Ensures unit is set for unit-level approvers
+        if self.scope == "unit" and not self.unit:
+            raise ValidationError("Unit-level approvers must have a unit assigned.")
+
+        # Ensures unit is not set for org-level approvers
+        if self.scope == "org" and self.unit:
+            raise ValidationError(
+                "Organizational-level approvers should not be assigned to a specific unit."
+            )
+
+    class Meta:
+        verbose_name = "Approver"
+        verbose_name_plural = "Approves"
