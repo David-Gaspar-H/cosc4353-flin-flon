@@ -25,20 +25,38 @@ class ApproverSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         user = data.get("user")
+        scope = data.get("scope")
+        unit = data.get("unit")
+
+        # One approver per user rule check
         if self.instance is None and Approver.objects.filter(user=user).exists():
             raise serializers.ValidationError(
                 "This user already has an approver scope assigned."
             )
+
+        # Org-level approver should NOT have a unit
+        if scope == "org" and unit is not None:
+            raise serializers.ValidationError(
+                "Organizational-level approvers should not have a unit assigned."
+            )
+
+        # Unit-level approver MUST have a unit
+        if scope == "unit" and unit is None:
+            raise serializers.ValidationError(
+                "Unit-level approvers must have a unit assigned."
+            )
+
         return data
 
 
 class UserSerializer(serializers.ModelSerializer):
     forms = FormSerializer(many=True, read_only=True)
 
-    # For reading/displaying the full unit details in a GET request
+    # For reading/displaying the full details in a GET request
     unit = UnitSerializer(read_only=True)
 
     approvers = ApproverSerializer(many=True, read_only=True)
+    approver_data = serializers.DictField(write_only=True, required=False)
 
     # Allows user assignment to a unit by just using the unit's ID (POST/PUT)
     unit_id = serializers.PrimaryKeyRelatedField(
@@ -69,6 +87,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         unit = validated_data.pop("unit", None)
+        approver_data = validated_data.pop("approver_data", None)
         user = CustomUser.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
@@ -79,4 +98,12 @@ class UserSerializer(serializers.ModelSerializer):
             last_name=validated_data.get("last_name", ""),
             unit=unit,
         )
+
+        # Create and validate approver object for the user if provided
+        if approver_data:
+            approver_data["user"] = user
+            serializer = ApproverSerializer(data=approver_data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
         return user
