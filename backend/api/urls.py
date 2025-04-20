@@ -18,6 +18,7 @@ from .views import (
 router = DefaultRouter()
 router.register(r"forms", views.FormViewSet, basename="form")
 router.register(r"approvers", views.ApproverViewSet, basename="approver")
+router.register(r"delegations", views.DelegationViewSet, basename="delegation")
 
 urlpatterns = [
     path("users/", UserListView.as_view(), name="user-list"),
