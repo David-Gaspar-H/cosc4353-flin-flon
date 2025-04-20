@@ -23,12 +23,22 @@ class ApproverSerializer(serializers.ModelSerializer):
         model = Approver
         fields = ["id", "user", "scope", "unit"]
 
+    def validate(self, data):
+        user = data.get("user")
+        if self.instance is None and Approver.objects.filter(user=user).exists():
+            raise serializers.ValidationError(
+                "This user already has an approver scope assigned."
+            )
+        return data
+
 
 class UserSerializer(serializers.ModelSerializer):
     forms = FormSerializer(many=True, read_only=True)
 
     # For reading/displaying the full unit details in a GET request
     unit = UnitSerializer(read_only=True)
+
+    approvers = ApproverSerializer(many=True, read_only=True)
 
     # Allows user assignment to a unit by just using the unit's ID (POST/PUT)
     unit_id = serializers.PrimaryKeyRelatedField(
@@ -50,6 +60,7 @@ class UserSerializer(serializers.ModelSerializer):
             "signature",
             "unit",
             "unit_id",
+            "approvers",
         ]
         extra_kwargs = {
             "password": {"write_only": True},

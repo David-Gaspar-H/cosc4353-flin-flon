@@ -81,6 +81,10 @@ class Approver(models.Model):
                 "Organizational-level approvers should not be assigned to a specific unit."
             )
 
+        # Enforces "one approver per user" rule, user is either org-level or unit-level approver
+        if Approver.objects.exclude(pk=self.pk).filter(user=self.user).exists():
+            raise ValidationError("This user already has an approver scope assigned.")
+
     class Meta:
         verbose_name = "Approver"
-        verbose_name_plural = "Approves"
+        verbose_name_plural = "Approvers"
