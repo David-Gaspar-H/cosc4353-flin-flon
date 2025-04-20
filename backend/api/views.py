@@ -1,14 +1,20 @@
 from rest_framework import generics, status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
-from .models import CustomUser, Form, Approver
-from .serializers import UserSerializer, FormSerializer, ApproverSerializer
+from .models import CustomUser, Form, Approver, Delegation
+from .serializers import (
+    UserSerializer,
+    FormSerializer,
+    ApproverSerializer,
+    DelegationSerializer,
+)
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
 from django.conf import settings
 import msal
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 import datetime
 
 
@@ -145,7 +151,7 @@ class UserListView(generics.ListCreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [
-        AllowAny
+        IsAdminUser
     ]  # [IsAdminUser] use this in prod, just no permission rn for easy testing
 
 
@@ -153,7 +159,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [
-        AllowAny
+        IsAdminUser
     ]  # [IsAdminUser] use this in prod, just no permission rn for easy testing
 
 
@@ -235,14 +241,14 @@ class UserFormsView(generics.ListAPIView):
 
 
 class FormSubmitView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, form_id):
         # Get user from request data
         user_id = request.data.get("user")
         if not user_id:
             return Response(
-                {"error": "user field is required"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "User field is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
@@ -255,40 +261,39 @@ class FormSubmitView(APIView):
 
         try:
             form = Form.objects.get(id=form_id)
-
-            if form.user.id != user.id:
-                return Response(
-                    {"error": "This form does not belong to the specified user"},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
-
-            if form.status != "draft":
-                return Response(
-                    {"error": "Only forms in draft status can be submitted"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            if "required_signatures" not in form.data:
-                return Response(
-                    {"error": "Form missing required_signatures field"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            form.status = "submitted"
-            form.save()
-
-            serializer = FormSerializer(form)
-            return Response(serializer.data)
-
         except Form.DoesNotExist:
             return Response(
                 {"error": f"Form with ID {form_id} does not exist"},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        if form.user.id != user.id:
+            return Response(
+                {"error": "This form does not belong to the specified user"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if form.status != "draft":
+            return Response(
+                {"error": "Only forms in draft status can be submitted"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if "required_signatures" not in form.data:
+            return Response(
+                {"error": "Form missing required_signatures field"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        form.status = "submitted"
+        form.save()
+
+        serializer = FormSerializer(form)
+        return Response(serializer.data)
+
 
 class FormApproveView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
 
     def post(self, request, form_id):
         # Get admin user from request data
@@ -298,23 +303,31 @@ class FormApproveView(APIView):
                 {"error": "user field is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
+        # Get form object
+        form = get_object_or_404(Form, id=form_id)
+
         try:
             # Get the admin user
             admin_user = CustomUser.objects.get(id=admin_id)
-
-            # Check if user is an admin
-            if admin_user.role != "admin":
-                return Response(
-                    {"error": "Only administrators can approve forms"},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
         except CustomUser.DoesNotExist:
             return Response(
                 {"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        # Get the form
-        form = get_object_or_404(Form, id=form_id)
+        # Check if user is an admin
+        if not can_approve(admin_user, form):
+            return Response(
+                {"error": "You are not authorized to approve this form."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if has_already_approved(admin_user, form):
+            return Response(
+                {
+                    "error": "Approval already submitted by this approver or their delegate"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Check if form is in submitted status
         if form.status != "submitted":
@@ -323,10 +336,8 @@ class FormApproveView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Check if this admin has already approved this form
-        # Store admin approvals in 'admin_approvals' list in the data field
-        if "admin_approvals" not in form.data:
-            form.data["admin_approvals"] = []
+        form.data.setdefault("admin_approvals", [])
+        form.data.setdefault("approval_log", [])
 
         # If admin already approved, prevent approval
         admin_id_str = str(admin_user.id)
@@ -348,6 +359,15 @@ class FormApproveView(APIView):
             form.status = "accepted"
             form.signed_on = datetime.date.today()
 
+        form.data["approval_log"].append(
+            {
+                "by": str(admin_user.id),
+                "name": admin_user.get_full_name(),
+                "date": str(datetime.date.today()),
+                "delegated": form.approver != admin_user,
+            }
+        )
+
         form.save()
 
         serializer = FormSerializer(form)
@@ -355,7 +375,7 @@ class FormApproveView(APIView):
 
 
 class FormRejectView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
 
     def post(self, request, form_id):
         # Get admin user from request data
@@ -370,9 +390,9 @@ class FormRejectView(APIView):
             admin_user = CustomUser.objects.get(id=admin_id)
 
             # Check if user is an admin
-            if admin_user.role != "admin":
+            if not can_approve(admin_user, form):
                 return Response(
-                    {"error": "Only administrators can reject forms"},
+                    {"error": "You are not authorized to reject forms"},
                     status=status.HTTP_403_FORBIDDEN,
                 )
         except CustomUser.DoesNotExist:
@@ -400,7 +420,79 @@ class FormRejectView(APIView):
         return Response(serializer.data)
 
 
+class DelegateFormView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, form_id):
+        delegate_to_id = request.data.get("delegate_to")
+        start_date = request.data.get("start_date")
+        end_date = request.data.get("end_date")
+
+        form = get_object_or_404(Form, id=form_id)
+        approver = request.user
+
+        if form.approver != approver:
+            return Response(
+                {"error": "You are not the approver."}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        delegate_to = get_object_or_404(CustomUser, id=delegate_to_id)
+
+        Delegation.objects.create(
+            approver=approver,
+            delegate_to=delegate_to,
+            start_date=start_date,
+            end_date=end_date,
+        )
+
+        return Response({"message": "Delegation successful"}, status=status.HTTP_200_OK)
+
+
 class ApproverViewSet(viewsets.ModelViewSet):
     queryset = Approver.objects.all()
     serializer_class = ApproverSerializer
     permission_classes = [IsAdminOrReadOnly]
+
+
+class DelegationViewSet(viewsets.ModelViewSet):
+    queryset = Delegation.objects.all()
+    serializer_class = DelegationSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def get_queryset(self):
+        # Restrict to only delegations for the current user
+        return Delegation.objects.filter(approver=self.request.user)
+
+
+def can_approve(user, form):
+    # Check if the user is the approver or has a delegation
+    if form.approver == user:
+        return True
+
+    # Check if the original approver delegated to this user
+    active_delegation = Delegation.objects.filter(
+        delegate_to=user,
+        start_date__lte=timezone.now().date(),
+        end_date__gte=timezone.now().date(),
+    ).first()
+
+    if active_delegation:
+        return active_delegation.delegate_to == user
+
+    return False
+
+
+def has_already_approved(user, form):
+    approval_ids = form.data.get("admin_approvals", [])
+    original_approver_id = str(form.approver.id)
+
+    # Check if the original approver or any of their delegates has approved
+    delegate_ids = Delegation.objects.filter(
+        approver=form.approver,
+        start_date__lte=timezone.now().date(),
+        end_date__gte=timezone.now().date(),
+    ).values_list("delegate_to_id", flat=True)
+
+    ids_to_check = [original_approver_id] + [str(uid) for uid in delegate_ids]
+
+    return any(approver_id in approval_ids for approver_id in ids_to_check)
