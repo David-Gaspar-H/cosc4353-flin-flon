@@ -90,3 +90,21 @@ class Approver(models.Model):
     class Meta:
         verbose_name = "Approver"
         verbose_name_plural = "Approvers"
+
+
+class Delegation(models.Model):
+    approver = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="delegator"
+    )
+    delegate_to = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="delegatee"
+    )
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return f"{self.approver} delegated to {self.delegate_to} from {self.start_date} to {self.end_date}."
+
+    class Meta:
+        verbose_name = "Delegator"
+        verbose_name_plural = "Delegators"
