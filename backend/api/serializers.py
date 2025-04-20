@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Form, Unit, Approver
+from .models import CustomUser, Form, Unit, Approver, Delegation, Workflow, WorkflowStep
 
 
 class FormSerializer(serializers.ModelSerializer):
@@ -47,6 +47,15 @@ class ApproverSerializer(serializers.ModelSerializer):
             )
 
         return data
+
+
+class DelegationSerializer(serializers.ModelSerializer):
+    approver = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    delegate_to = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+
+    class Meta:
+        model = Delegation
+        fields = ["approver", "delegate_to", "start_date", "end_date"]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -107,3 +116,24 @@ class UserSerializer(serializers.ModelSerializer):
             serializer.save()
 
         return user
+
+
+class WorkflowStepSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkflowStep
+        fields = [
+            "id",
+            "step_number",
+            "role_required",
+            "approver_unit",
+            "is_optional",
+            "approvals_required",
+        ]
+
+
+class WorkflowSerializer(serializers.ModelSerializer):
+    steps = WorkflowStepSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Workflow
+        fields = ["id", "name", "form_type", "origin_unit", "is_active", "steps"]
