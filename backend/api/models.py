@@ -63,7 +63,9 @@ class Unit(models.Model):
 class Approver(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     scope = models.CharField(
-        choices=[("unit", "Unit"), ("org", "Organization")], default="unit"
+        max_length=5,
+        choices=[("unit", "Unit"), ("org", "Organization")],
+        default="unit",
     )
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE, null=True, blank=True)
 
