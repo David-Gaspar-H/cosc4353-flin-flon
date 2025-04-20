@@ -88,6 +88,7 @@ class UserSerializer(serializers.ModelSerializer):
             "unit",
             "unit_id",
             "approvers",
+            "approver_data",
         ]
         extra_kwargs = {
             "password": {"write_only": True},
