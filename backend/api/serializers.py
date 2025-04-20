@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Form, Unit
+from .models import CustomUser, Form, Unit, Approver
 
 
 class FormSerializer(serializers.ModelSerializer):
@@ -16,6 +16,12 @@ class UnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Unit
         fields = ["id", "name", "parent"]
+
+
+class ApproverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Approver
+        fields = ["id", "user", "scope", "unit"]
 
 
 class UserSerializer(serializers.ModelSerializer):
