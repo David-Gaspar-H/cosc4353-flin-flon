@@ -1,7 +1,12 @@
 from rest_framework import generics, status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
-from .models import CustomUser, Form, Approver, Delegation
+from .models import (
+    CustomUser,
+    Form,
+    Approver,
+    Delegation,
+)
 from .serializers import (
     UserSerializer,
     FormSerializer,
@@ -14,7 +19,13 @@ from django.conf import settings
 import msal
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from utils import (
+    can_approve,
+    has_already_approved,
+    get_actual_approver,
+    initialize_approval_steps,
+    build_approval_queue,
+)
 import datetime
 
 
@@ -288,6 +299,13 @@ class FormSubmitView(APIView):
         form.status = "submitted"
         form.save()
 
+        # Initialize the approval steps based on the workflow
+        initialize_approval_steps(form)
+
+        # Build the approval queue for the form
+        build_approval_queue(form)
+
+        # Serialize and return the form data
         serializer = FormSerializer(form)
         return Response(serializer.data)
 
@@ -347,6 +365,12 @@ class FormApproveView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Get actual approver in case of delegation
+        actual_approver = get_actual_approver(admin_user)
+
+        # If admin is not the actual approver, flag as delegated
+        delegated = actual_approver != admin_user
+
         # Add admin ID to approvals list
         form.data["admin_approvals"].append(admin_id_str)
 
@@ -359,6 +383,7 @@ class FormApproveView(APIView):
             form.status = "accepted"
             form.signed_on = datetime.date.today()
 
+        # Add aproval log entry
         form.data["approval_log"].append(
             {
                 "by": str(admin_user.id),
@@ -367,6 +392,12 @@ class FormApproveView(APIView):
                 "delegated": form.approver != admin_user,
             }
         )
+
+        # Update the form status if all steps are completed
+        if form.status == "accepted":
+            pending_steps = form.approval_steps.filter(is_completed=False)
+            if not pending_steps.exists():
+                form.status = "approved"
 
         form.save()
 
@@ -390,7 +421,8 @@ class FormRejectView(APIView):
             admin_user = CustomUser.objects.get(id=admin_id)
 
             # Check if user is an admin
-            if not can_approve(admin_user, form):
+            actual_approver = get_actual_approver(admin_user)
+            if actual_approver != admin_user:
                 return Response(
                     {"error": "You are not authorized to reject forms"},
                     status=status.HTTP_403_FORBIDDEN,
@@ -412,6 +444,17 @@ class FormRejectView(APIView):
         # Add rejection reason if we want ot
         if "reason" in request.data:
             form.data["rejection_reason"] = request.data["reason"]
+
+        # Log rejection
+        form.data.setdefault("approval_log", []).append(
+            {
+                "by": str(admin_user.id),
+                "name": admin_user.get_full_name(),
+                "date": str(datetime.date.today()),
+                "action": "rejected",
+                "delegated": actual_approver != admin_user,
+            }
+        )
 
         form.status = "rejected"
         form.save()
@@ -462,37 +505,3 @@ class DelegationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Restrict to only delegations for the current user
         return Delegation.objects.filter(approver=self.request.user)
-
-
-def can_approve(user, form):
-    # Check if the user is the approver or has a delegation
-    if form.approver == user:
-        return True
-
-    # Check if the original approver delegated to this user
-    active_delegation = Delegation.objects.filter(
-        delegate_to=user,
-        start_date__lte=timezone.now().date(),
-        end_date__gte=timezone.now().date(),
-    ).first()
-
-    if active_delegation:
-        return active_delegation.delegate_to == user
-
-    return False
-
-
-def has_already_approved(user, form):
-    approval_ids = form.data.get("admin_approvals", [])
-    original_approver_id = str(form.approver.id)
-
-    # Check if the original approver or any of their delegates has approved
-    delegate_ids = Delegation.objects.filter(
-        approver=form.approver,
-        start_date__lte=timezone.now().date(),
-        end_date__gte=timezone.now().date(),
-    ).values_list("delegate_to_id", flat=True)
-
-    ids_to_check = [original_approver_id] + [str(uid) for uid in delegate_ids]
-
-    return any(approver_id in approval_ids for approver_id in ids_to_check)
