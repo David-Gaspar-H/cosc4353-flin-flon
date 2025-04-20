@@ -52,7 +52,7 @@ class WorkflowStepAdmin(admin.ModelAdmin):
         "approvals_required",
         "is_optional",
     )
-    list_filter = "workflow"
+    list_filter = ("workflow",)
     ordering = ("workflow", "step_number")
 
 

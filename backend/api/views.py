@@ -19,7 +19,7 @@ from django.conf import settings
 import msal
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from utils import (
+from .utils import (
     can_approve,
     has_already_approved,
     get_actual_approver,
