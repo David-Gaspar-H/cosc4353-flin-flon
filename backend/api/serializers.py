@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Form, Unit, Approver
+from .models import CustomUser, Form, Unit, Approver, Delegation
 
 
 class FormSerializer(serializers.ModelSerializer):
@@ -47,6 +47,15 @@ class ApproverSerializer(serializers.ModelSerializer):
             )
 
         return data
+
+
+class DelegationSerializer(serializers.ModelSerializer):
+    approver = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    delegate_to = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+
+    class Meta:
+        model = Delegation
+        fields = ["approver", "delegate_to", "start_date", "end_date"]
 
 
 class UserSerializer(serializers.ModelSerializer):
