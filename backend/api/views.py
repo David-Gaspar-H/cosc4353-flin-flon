@@ -175,7 +175,7 @@ class UserListView(generics.ListCreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [
-        IsAdminUser
+        AllowAny
     ]  # [IsAdminUser] use this in prod, just no permission rn for easy testing
 
 
@@ -183,7 +183,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [
-        IsAdminUser
+        AllowAny
     ]  # [IsAdminUser] use this in prod, just no permission rn for easy testing
 
 
