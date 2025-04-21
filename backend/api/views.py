@@ -346,19 +346,19 @@ class FormApproveView(APIView):
             )
 
         # Check if user is an admin
-        if not can_approve(admin_user, form):
-            return Response(
-                {"error": "You are not authorized to approve this form."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        #if not can_approve(admin_user, form):
+        #    return Response(
+        #        {"error": "You are not authorized to approve this form."},
+        #        status=status.HTTP_403_FORBIDDEN,
+        #    )
 
-        if has_already_approved(admin_user, form):
-            return Response(
-                {
-                    "error": "Approval already submitted by this approver or their delegate"
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        #if has_already_approved(admin_user, form):
+        #    return Response(
+        #        {
+        #            "error": "Approval already submitted by this approver or their delegate"
+        #        },
+        #        status=status.HTTP_400_BAD_REQUEST,
+        #    )
 
         # Check if form is in submitted status
         if form.status != "submitted":
@@ -379,10 +379,10 @@ class FormApproveView(APIView):
             )
 
         # Get actual approver in case of delegation
-        actual_approver = get_actual_approver(admin_user)
+        #actual_approver = get_actual_approver(admin_user)
 
         # If admin is not the actual approver, flag as delegated
-        delegated = actual_approver != admin_user
+        #delegated = actual_approver != admin_user
 
         # Add admin ID to approvals list
         form.data["admin_approvals"].append(admin_id_str)
@@ -434,12 +434,12 @@ class FormRejectView(APIView):
             admin_user = CustomUser.objects.get(id=admin_id)
 
             # Check if user is an admin
-            actual_approver = get_actual_approver(admin_user)
-            if actual_approver != admin_user:
-                return Response(
-                    {"error": "You are not authorized to reject forms"},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
+           # actual_approver = get_actual_approver(admin_user)
+            #if actual_approver != admin_user:
+            #    return Response(
+            #        {"error": "You are not authorized to reject forms"},
+            #        status=status.HTTP_403_FORBIDDEN,
+            #    )
         except CustomUser.DoesNotExist:
             return Response(
                 {"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
@@ -465,7 +465,7 @@ class FormRejectView(APIView):
                 "name": admin_user.get_full_name(),
                 "date": str(datetime.date.today()),
                 "action": "rejected",
-                "delegated": actual_approver != admin_user,
+                "delegated": False,
             }
         )
 

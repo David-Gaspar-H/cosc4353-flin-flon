@@ -14,8 +14,8 @@ import datetime
 # Logic to check for approvers
 def can_approve(user, form):
     # Check if the user is the approver or has a delegation
-    if form.approver == user:
-        return True
+    #if form.approver == user:
+    #    return True
 
     # Check if the original approver delegated to this user
     return Delegation.objects.filter(
