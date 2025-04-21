@@ -13,12 +13,16 @@ from .views import (
     FormApproveView,
     FormRejectView,
     ApproverViewSet,
+    WorkflowStepViewSet
 )
 
 router = DefaultRouter()
 router.register(r"forms", views.FormViewSet, basename="form")
 router.register(r"approvers", views.ApproverViewSet, basename="approver")
 router.register(r"delegations", views.DelegationViewSet, basename="delegation")
+router.register(r"workflows", views.WorkflowViewSet, basename="workflow")
+router.register(r"workflow-steps", views.WorkflowStepViewSet, basename="workflow-step")
+router.register(r"units", views.UnitViewSet, basename="unit")
 
 urlpatterns = [
     path("users/", UserListView.as_view(), name="user-list"),
@@ -33,4 +37,10 @@ urlpatterns = [
         "forms/<int:form_id>/approve/", FormApproveView.as_view(), name="form-approve"
     ),
     path("forms/<int:form_id>/reject/", FormRejectView.as_view(), name="form-reject"),
-]
+    
+    path('reports/', views.ApprovalReportView.as_view(), name='approval-reports'),
+    path('pending-approvals/', views.PendingApprovalsView.as_view(), name='pending-approvals'),
+    path('units/hierarchy/', views.UnitHierarchyView.as_view(), name='unit-hierarchy'),
+    path("units/top-level/", views.UnitViewSet.as_view({'get': 'top_level'}), name="unit-top-level"),
+    path('units/<int:unit_id>/hierarchy/', views.UnitHierarchyView.as_view(), name='unit-specific-hierarchy'),
+    path("forms/<int:form_id>/delegate/", views.DelegateFormView.as_view(), name="form-delegate"),]

@@ -1,17 +1,25 @@
 from rest_framework import generics, status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
+from rest_framework.decorators import action
+from django.core.exceptions import ValidationError
 from .models import (
     CustomUser,
     Form,
     Approver,
     Delegation,
+    Workflow,
+    WorkflowStep,
+    Unit
 )
 from .serializers import (
     UserSerializer,
     FormSerializer,
     ApproverSerializer,
     DelegationSerializer,
+    WorkflowSerializer,
+    WorkflowStepSerializer,
+    UnitSerializer
 )
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
@@ -25,6 +33,11 @@ from .utils import (
     get_actual_approver,
     initialize_approval_steps,
     build_approval_queue,
+    update_workflow,
+    generate_approval_report,
+    get_form_audit_trail,
+    get_unit_hierarchy,
+    get_pending_approvals_for_user,
 )
 import datetime
 
@@ -505,3 +518,164 @@ class DelegationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Restrict to only delegations for the current user
         return Delegation.objects.filter(approver=self.request.user)
+
+# Worklof viewsets
+class WorkflowViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing approval workflows.
+    Enables administrators to create, update and delete workflows.
+    """
+    serializer_class = WorkflowSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        queryset = Workflow.objects.all()
+        # Filter by unit or form type if provided
+        unit_id = self.request.query_params.get('unit')
+        form_type = self.request.query_params.get('form_type')
+        
+        if unit_id:
+            queryset = queryset.filter(origin_unit_id=unit_id)
+        if form_type:
+            queryset = queryset.filter(form_type=form_type)
+            
+        return queryset
+    
+    @action(detail=True, methods=['get'])
+    def steps(self, request, pk=None):
+        """Get all steps for a specific workflow"""
+        workflow = self.get_object()
+        steps = workflow.steps.all().order_by('step_number')
+        serializer = WorkflowStepSerializer(steps, many=True)
+        return Response(serializer.data)
+    
+
+class WorkflowStepViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing workflow steps.
+    Allows administrators to customize approval steps.
+    """
+    serializer_class = WorkflowStepSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        queryset = WorkflowStep.objects.all()
+        # Filter by workflow if provided
+        workflow_id = self.request.query_params.get('workflow')
+        if workflow_id:
+            queryset = queryset.filter(workflow_id=workflow_id)
+        return queryset
+
+
+class UnitViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing organizational units.
+    Allows administrators to define the organizational hierarchy.
+    """
+    queryset = Unit.objects.all()
+    serializer_class = UnitSerializer
+    permission_classes = [AllowAny]
+    
+    @action(detail=True, methods=['get'])
+    def subunits(self, request, pk=None):
+        """Get all direct subunits for a specific unit"""
+        unit = self.get_object()
+        subunits = Unit.objects.filter(parent=unit)
+        serializer = UnitSerializer(subunits, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def top_level(self, request):
+        """Get all top-level units (those without parents)"""
+        units = Unit.objects.filter(parent__isnull=True)
+        serializer = UnitSerializer(units, many=True)
+        return Response(serializer.data)
+
+
+class UnitReportViewSet(viewsets.ViewSet):
+    """
+    ViewSet for generating unit-specific reports.
+    Provides reporting capabilities at both organizational and unit levels.
+    """
+    permission_classes = [AllowAny]
+    
+    def list(self, request):
+        """Generate a report for all units"""
+        report_data = generate_approval_report(request.query_params)
+        return Response(report_data)
+    
+    def retrieve(self, request, pk=None):
+        """Generate a report for a specific unit"""
+        unit = get_object_or_404(Unit, pk=pk)
+        params = request.query_params.copy()
+        params['unit'] = pk
+        report_data = generate_approval_report(params)
+        return Response(report_data)
+
+
+class ApprovalReportView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        """Generate approval reports based on query params"""
+        # Extract filters from query parameters
+        filters = {}
+        
+        if 'status' in request.query_params:
+            filters['status'] = request.query_params.get('status')
+            
+        if 'unit' in request.query_params:
+            filters['unit'] = request.query_params.get('unit')
+            
+        if 'form_type' in request.query_params:
+            filters['form_type'] = request.query_params.get('form_type')
+            
+        if 'date_from' in request.query_params:
+            filters['date_from'] = request.query_params.get('date_from')
+            
+        if 'date_to' in request.query_params:
+            filters['date_to'] = request.query_params.get('date_to')
+            
+        if 'include_details' in request.query_params:
+            filters['include_details'] = request.query_params.get('include_details') == 'true'
+        
+        # Generate report
+        try:
+            report_data = generate_approval_report(filters)
+            return Response(report_data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class PendingApprovalsView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        """Get all forms pending approval for the current user"""
+        user = request.user
+        pending_forms = get_pending_approvals_for_user(user)
+        
+        from .serializers import FormSerializer
+        serializer = FormSerializer(pending_forms, many=True)
+        return Response(serializer.data)
+
+
+class UnitHierarchyView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request, unit_id=None):
+        """Get unit hierarchy information"""
+        if unit_id:
+            # Get hierarchy for specific unit
+            hierarchy = get_unit_hierarchy(unit_id)
+            from .serializers import UnitSerializer
+            serializer = UnitSerializer(hierarchy, many=True)
+            return Response(serializer.data)
+        else:
+            # Get all top-level units (those without parents)
+            top_units = Unit.objects.filter(parent__isnull=True)
+            from .serializers import UnitSerializer
+            serializer = UnitSerializer(top_units, many=True)
+            return Response(serializer.data)
