@@ -402,7 +402,7 @@ class FormApproveView(APIView):
                 "by": str(admin_user.id),
                 "name": admin_user.get_full_name(),
                 "date": str(datetime.date.today()),
-                "delegated": form.approver != admin_user,
+                "delegated": False,
             }
         )
 
