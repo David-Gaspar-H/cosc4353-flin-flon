@@ -487,10 +487,10 @@ class DelegateFormView(APIView):
         form = get_object_or_404(Form, id=form_id)
         approver = request.user
 
-        if form.approver != approver:
-            return Response(
-                {"error": "You are not the approver."}, status=status.HTTP_403_FORBIDDEN
-            )
+        #if form.approver != approver:
+        #    return Response(
+        #        {"error": "You are not the approver."}, status=status.HTTP_403_FORBIDDEN
+        #    )
 
         delegate_to = get_object_or_404(CustomUser, id=delegate_to_id)
 
