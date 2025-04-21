@@ -15,6 +15,7 @@ import FormsTable from "./components/FormsTable.jsx";
 import Footer from "./components/Footer.jsx";
 import {Box} from "@mui/material";
 import React from "react";
+import ApprovalReport from "./components/ApprovalReport.jsx";
 
 function AppContent() {
     const {user, logout} = useUser();
@@ -52,6 +53,15 @@ function AppContent() {
                     element={
                         <ProtectedRoute allowedRoles={["admin"]}>
                             <FormsTable/>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/report"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <ApprovalReport/>
                         </ProtectedRoute>
                     }
                 />
