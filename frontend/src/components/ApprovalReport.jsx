@@ -151,6 +151,18 @@ const ApprovalReport = () => {
                                 </CardContent>
                             </Card>
                         </Grid2>
+                        <Grid2 item xs={12}>
+                            <Card variant="outlined">
+                                <CardContent>
+                                    <Typography variant="subtitle1" gutterBottom>
+                                        Draft Forms:
+                                    </Typography>
+                                    <Typography variant="h5" color="black">
+                                        {data.by_status.draft}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid2>
                     </Grid2>
                 )}
             </Box>
