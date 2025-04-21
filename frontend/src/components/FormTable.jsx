@@ -100,7 +100,7 @@ const FormTable = ({isAdmin, formsData, sx}) => {
                                 {isAdmin ? (
                                     <>
                                         <TableCell>{row.data.name}</TableCell>
-                                        <TableCell>{row.data.type}</TableCell>
+                                        <TableCell>{row.type}</TableCell>
                                         <TableCell>
                                             {row.signed_on}
                                         </TableCell>
@@ -137,7 +137,7 @@ const FormTable = ({isAdmin, formsData, sx}) => {
                                     </>
                                 ) : (
                                     <>
-                                        <TableCell>{row.data.type}</TableCell>
+                                        <TableCell>{row.type}</TableCell>
                                         <TableCell>
                                             <Button
                                                 variant="contained"
@@ -188,15 +188,15 @@ const FormTable = ({isAdmin, formsData, sx}) => {
             <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
                 <DialogTitle>View Form</DialogTitle>
                 <DialogContent>
-                    {currentRow?.data.type === "Reduce Course Load" && (
+                    {currentRow?.type === "Reduce Course Load" && (
                         <ReduceCourseLoadForm formData={currentRow}
                         mode={currentRow.status === 'draft' ? "edit" : "view"} />
                     )}
-                    {currentRow?.data.type === "Ferpa" && (
+                    {currentRow?.type === "Ferpa" && (
                         <FerpaForm formData={currentRow}
                         mode={currentRow.status === 'draft' ? "edit" : "view"} />
                     )}                    
-                    {currentRow?.data.type === "SSN" && (
+                    {currentRow?.type === "SSN" && (
                         <SsnChange formData={currentRow}
                         mode={currentRow.status === 'draft' ? "edit" : "view"} />
                     )}

@@ -25,7 +25,7 @@ import {useUser} from "./context/UserContext.jsx";
 
 const columns = [
     {id: "applicant_name", label: "Applicant Name", minWidth: 170},
-    {id: "Form", label: "Applicant Name", minWidth: 170},
+    {id: "Form", label: "Form Type", minWidth: 170},
     {id: "status", label: "Status", minWidth: 170},
     {id: "signed_on", label: "Date Submitted", minWidth: 170},
     {id: "action", label: "Action", minWidth: 150},
@@ -206,7 +206,7 @@ const FormsTable = () => {
                                         }}
                                     >
                                         <TableCell>{form.data?.name}</TableCell>
-                                        <TableCell>{form.data?.type}</TableCell>
+                                        <TableCell>{form.type}</TableCell>
                                         <TableCell>{form.status}</TableCell>
                                         <TableCell>{form.signed_on}</TableCell>
                                         <TableCell>

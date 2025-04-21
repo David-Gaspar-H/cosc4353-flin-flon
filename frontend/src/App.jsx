@@ -61,7 +61,6 @@ function AppContent() {
                     path="/report"
                     element={
                         <ProtectedRoute allowedRoles={["admin"]}>
-                            <ApprovalReport/>
                         </ProtectedRoute>
                     }
                 />
