@@ -17,11 +17,16 @@ import {
     Box,
     Typography,
     TablePagination,
+    List,
+    ListItem,
+    ListItemText,
+    TextField,
 } from "@mui/material";
 import ReduceCourseLoadForm from "./ReduceCourseLoadForm.jsx";
 import FerpaForm from "./FerpaForm.jsx";
 import api from "../services/api.js";
 import {useUser} from "./context/UserContext.jsx";
+
 
 const columns = [
     {id: "applicant_name", label: "Applicant Name", minWidth: 170},
@@ -32,6 +37,7 @@ const columns = [
 ];
 
 const FormsTable = () => {
+
     const [open, setOpen] = useState(false);
     const [selectedFormId, setSelectedFormId] = useState(null);
     const [formData, setFormData] = useState([]);
@@ -43,6 +49,34 @@ const FormsTable = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const {user} = useUser();
 
+    const [openDelegate, setOpenDelegate] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Add these state variables at the top of your component (with the other useState declarations)
+    const [delegateForm, setDelegateForm] = useState(null);
+    const [users, setUsers] = useState([]);
+    const [usersLoading, setUsersLoading] = useState(false);
+
+    //date states
+    const [dateError, setDateError] = useState('');
+    const [startDate, setStartDate] = useState(() => { //today's date
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      });
+    const [endDate, setEndDate] = useState(() => { //standard 7 days from today
+        const today = new Date();
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7); // Add 7 days
+        
+        const year = nextWeek.getFullYear();
+        const month = String(nextWeek.getMonth() + 1).padStart(2, '0');
+        const day = String(nextWeek.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    });
 
     const fetchFormData = async () => {
         setLoading(true);
@@ -56,6 +90,20 @@ const FormsTable = () => {
             setError("Failed to load forms. Please try again later.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Add this function to fetch users (call it in useEffect or when needed)
+    const fetchUsers = async () => {
+        setUsersLoading(true);
+        try {
+            const response = await api.get("/users/admins/"); // Adjust endpoint as needed
+            setUsers(response.data);
+        } catch (error) {
+            console.error("Error fetching users: ", error);
+            setError("Failed to load users for delegation.");
+        } finally {
+            setUsersLoading(false);
         }
     };
 
@@ -123,6 +171,40 @@ const FormsTable = () => {
         }
     };
 
+    // Modify your handleDelegate function to use the selected user
+    const handleDelegate = async () => {
+        if (!delegateForm || !selectedUser) return;
+        const newstartDate = new Date(startDate);
+        const newendDate = new Date(endDate);
+
+        if(newstartDate > newendDate){
+            setDateError("Date range is invalid");
+            return;
+        }
+        
+        setActionLoading(true);
+        try {
+            const response = await api.post(`/forms/${delegateForm.id}/delegate/`, {
+                user: user.id,
+                delegate_to: selectedUser.id,
+                start_date: startDate, // Consider adding date pickers
+                end_date: endDate
+            });
+
+            if (response.status === 200) {
+                await fetchFormData();
+                setOpenDelegate(false);
+                setDelegateForm(null);
+                setSelectedUser(null);
+            }
+        } catch (error) {
+            console.error("Error delegating form: ", error);
+            setError("Failed to delegate form. Please try again.");
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
 
     // Handle page change
     const handleChangePage = (event, newPage) => {
@@ -134,6 +216,19 @@ const FormsTable = () => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
+
+    const handleStartDateChange=(e)=>{
+        setStartDate(e);
+        setDateError("");
+        return true;
+        
+    }
+    const handleEndDateChange=(e)=>{
+        setEndDate(e);
+        setDateError("");
+        return true;
+
+    }
 
     // Calculate paginated data
     const getPaginatedData = () => {
@@ -240,6 +335,20 @@ const FormsTable = () => {
                                             >
                                                 {actionLoading ? "Processing..." : "Reject"}
                                             </Button>
+                                            <Button
+                                                variant="contained"
+                                                onClick={() => {
+                                                    setDelegateForm(form);
+                                                    fetchUsers(); // Load users when opening the dialog
+                                                    setOpenDelegate(true);
+                                                }}
+                                                size="small"
+                                                sx={{mr: 1}}
+                                                disabled={actionLoading || form.status !== 'submitted'}
+                                            >
+                                                {actionLoading ? "Processing..." : "Delegate"}
+                                            </Button>
+                                            
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -295,7 +404,97 @@ const FormsTable = () => {
                     </DialogContent>
                 </Dialog>
             </Box>
+
+    <Dialog 
+        open={openDelegate} 
+        onClose={() => {
+            setOpenDelegate(false);
+            // Don't reset searchTerm here if you want it to persist
+        }}
+        maxWidth="sm" 
+        fullWidth
+    >
+    <DialogTitle>Delegate Form to User</DialogTitle>
+    <DialogContent>
+        <Box sx={{ mb: 2 }}>
+            <TextField
+                label="Search users"
+                variant="outlined"
+                fullWidth
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                sx={{ mb: 2 }}
+            />
+        </Box>
+        
+        {usersLoading ? (
+            <Box display="flex" justifyContent="center" p={2}>
+                <CircularProgress />
+            </Box>
+        ) : (
+            <List sx={{
+                height: 200}}>
+                {users
+                .filter(user =>
+                    user.username.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((user) => (
+                    <ListItem 
+                    button 
+                    key={user.id}
+                    onClick={() => setSelectedUser(user)}
+                    selected={selectedUser?.id === user.id}
+                    >
+                    <ListItemText 
+                        primary={user.username} 
+                        // Remove secondary if you don't need email
+                    />
+                    </ListItem>
+                ))
+                }
+
+            </List>
+        )}
+    </DialogContent>
+    <DialogContent>
+    <Box>
+        <Typography >
+            From:
+            <TextField size="small" sx={{ width: "150px", marginLeft: 1, marginRight: 1,}}
+                name="FromDate"
+                onChange={(e) => handleStartDateChange(e.target.value)}
+                type="date"
+                
+                ></TextField>
+            To: 
+            <TextField size="small" sx={{ width: "150px", marginLeft: 1, marginRight: 1,}}
+                name="ToDate"
+                onChange={(e) => handleEndDateChange(e.target.value)}
+                type = "date"
+                
+            ></TextField>
+            <Typography sx={{ color: 'red' }}>
+            {dateError}
+            </Typography>
+        </Typography>
+
+    </Box>
+    </DialogContent>
+
+    <DialogActions>
+        <Button onClick={() => setOpenDelegate(false)}>Cancel</Button>
+        <Button 
+            onClick={handleDelegate}
+            disabled={!selectedUser || actionLoading}
+            variant="contained"
+        >
+            {actionLoading ? "Delegating..." : "Confirm Delegation"}
+        </Button>
+    </DialogActions>
+</Dialog>
         </>
+
+        
     );
 };
 
