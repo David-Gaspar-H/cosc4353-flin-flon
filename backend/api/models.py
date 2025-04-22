@@ -102,6 +102,13 @@ class Delegation(models.Model):
     delegate_to = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="delegatee"
     )
+
+    form = models.ForeignKey(
+        Form, 
+        on_delete=models.CASCADE,
+        related_name="delegations",
+        verbose_name="Associated Form"
+    )
     
     start_date = models.DateField()
     end_date = models.DateField()
