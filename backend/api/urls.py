@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 from .views import (
     UserListView,
+    AdminListView,
     UserDetailView,
     LoginView,
     MSAuthView,
@@ -26,6 +27,9 @@ router.register(r"units", views.UnitViewSet, basename="unit")
 
 urlpatterns = [
     path("users/", UserListView.as_view(), name="user-list"),
+    ##Added by Iker to get all admins
+    path('users/admins/', AdminListView.as_view(), name='admin-list'),
+
     path("users/<int:pk>/", UserDetailView.as_view(), name="user-detail"),
     path("login/", LoginView.as_view(), name="login"),
     path("ms-auth/", MSAuthView.as_view(), name="ms-auth"),

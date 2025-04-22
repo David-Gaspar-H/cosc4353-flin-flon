@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from django.core.exceptions import ValidationError
+from django.views import View
 from .models import (
     CustomUser,
     Form,
@@ -178,6 +179,15 @@ class UserListView(generics.ListCreateAPIView):
         AllowAny
     ]  # [IsAdminUser] use this in prod, just no permission rn for easy testing
 
+class AdminListView(View):
+
+    def get(self, request, *args, **kwargs):
+        admins = CustomUser.objects.filter(
+            role='admin'
+        ).values('id', 'username').order_by('username')
+        
+        return JsonResponse(list(admins), safe=False)
+    
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
@@ -485,7 +495,7 @@ class DelegateFormView(APIView):
         end_date = request.data.get("end_date")
 
         form = get_object_or_404(Form, id=form_id)
-        approver = request.user
+        approver = CustomUser.objects.get(id=request.data.get("user"))
 
         #if form.approver != approver:
         #    return Response(
