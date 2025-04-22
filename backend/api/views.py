@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from django.core.exceptions import ValidationError
 from django.views import View
+from django.db.models import Subquery
 from .models import (
     CustomUser,
     Form,
@@ -265,14 +266,28 @@ class FormViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
-class UserFormsView(generics.ListAPIView):
+class UserFormsView(generics.GenericAPIView):
     serializer_class = FormSerializer
     permission_classes = [AllowAny]
 
-    def get_queryset(self):
-        user_id = self.kwargs.get("user_id")
-        return Form.objects.filter(user_id=user_id)
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get("user")
+        
+        if not user_id:
+            return Response({"error": "user_id is required"}, status=400)
 
+        # Get all form IDs where this user is an approver
+        delegated_form_ids = Delegation.objects.filter(
+            approver_id=user_id
+        ).values('form_id')
+
+        # Get forms submitted by the user, excluding those where they're an approver
+        queryset = Form.objects.filter(user_id=user_id).exclude(
+            id__in=Subquery(delegated_form_ids)
+        )
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 class FormSubmitView(APIView):
     permission_classes = [AllowAny]
@@ -509,6 +524,7 @@ class DelegateFormView(APIView):
             delegate_to=delegate_to,
             start_date=start_date,
             end_date=end_date,
+            form = form,
         )
 
         return Response({"message": "Delegation successful"}, status=status.HTTP_200_OK)

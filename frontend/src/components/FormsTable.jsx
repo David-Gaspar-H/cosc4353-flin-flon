@@ -81,7 +81,12 @@ const FormsTable = () => {
     const fetchFormData = async () => {
         setLoading(true);
         try {
-            const response = await api.get("/forms/");
+            //user stands for the person using the system, users represent the list of admin users we can delegate to.
+
+            const request = {
+                user : user.id
+            }
+            const response = await api.post("/forms/", request);
             const forms = response.data;
             setFormData(forms);
             setError(null);
@@ -187,7 +192,7 @@ const FormsTable = () => {
             const response = await api.post(`/forms/${delegateForm.id}/delegate/`, {
                 user: user.id,
                 delegate_to: selectedUser.id,
-                start_date: startDate, // Consider adding date pickers
+                start_date: startDate,
                 end_date: endDate
             });
 
