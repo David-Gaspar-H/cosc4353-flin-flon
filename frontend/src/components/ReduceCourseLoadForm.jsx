@@ -38,10 +38,10 @@ const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
         user: user ? user.id : null,
         status: "",
         signed_on: new Date().toISOString().split("T")[0],
+        type: "Reduce Course Load",
         data: {
             name: user ? `${user.first_name} ${user.last_name}` : "",
             peopleSoftId: 0,
-            type: "Reduce Course Load",
             required_signatures: 2,
             // Academic Difficulty Section
             initialAdjustmentIssues: false,
@@ -971,24 +971,24 @@ const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
                                 <Button variant="text" onClick={() => handleOpenSignature("advisor")} fullWidth
                                         disabled={isViewOnly}
                                         sx={{
-                                        backgroundImage: formData.data.advisorSignature
-                                            ? `url(${formData.data.advisorSignature})`
-                                            : 'none',
-                                        backgroundSize: "cover",
-                                        backgroundPosition: "center top",
-                                    }}>
-                                        {formData.data.advisorSignature ? (
-                                            <Box sx={{
-                                                paddingTop: "50px",
-                                            }}>
-                                                {/* Small label below the signature */}
-                                                <span
-                                                    style={{fontSize: "10px", color: "gray"}}>Signature</span>
-                                            </Box>
-                                        ) : (
-                                            "Upload Signature"
-                                        )}
-                                    </Button>
+                                            backgroundImage: formData.data.advisorSignature
+                                                ? `url(${formData.data.advisorSignature})`
+                                                : 'none',
+                                            backgroundSize: "cover",
+                                            backgroundPosition: "center top",
+                                        }}>
+                                    {formData.data.advisorSignature ? (
+                                        <Box sx={{
+                                            paddingTop: "50px",
+                                        }}>
+                                            {/* Small label below the signature */}
+                                            <span
+                                                style={{fontSize: "10px", color: "gray"}}>Signature</span>
+                                        </Box>
+                                    ) : (
+                                        "Upload Signature"
+                                    )}
+                                </Button>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -1029,24 +1029,24 @@ const ReduceCourseLoadForm = ({formData: propFormData, mode = "edit"}) => {
                                 <Button variant="text" onClick={() => handleOpenSignature("isso")} fullWidth
                                         disabled={isViewOnly}
                                         sx={{
-                                        backgroundImage: formData.data.issoSignature
-                                            ? `url(${formData.data.issoSignature})`
-                                            : 'none',
-                                        backgroundSize: "cover",
-                                        backgroundPosition: "center top",
-                                    }}>
-                                        {formData.data.issoSignature ? (
-                                            <Box sx={{
-                                                paddingTop: "50px",
-                                            }}>
-                                                {/* Small label below the signature */}
-                                                <span
-                                                    style={{fontSize: "10px", color: "gray"}}>Signature</span>
-                                            </Box>
-                                        ) : (
-                                            "Upload Signature"
-                                        )}
-                                    </Button>
+                                            backgroundImage: formData.data.issoSignature
+                                                ? `url(${formData.data.issoSignature})`
+                                                : 'none',
+                                            backgroundSize: "cover",
+                                            backgroundPosition: "center top",
+                                        }}>
+                                    {formData.data.issoSignature ? (
+                                        <Box sx={{
+                                            paddingTop: "50px",
+                                        }}>
+                                            {/* Small label below the signature */}
+                                            <span
+                                                style={{fontSize: "10px", color: "gray"}}>Signature</span>
+                                        </Box>
+                                    ) : (
+                                        "Upload Signature"
+                                    )}
+                                </Button>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
