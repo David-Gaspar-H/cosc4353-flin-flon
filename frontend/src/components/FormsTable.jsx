@@ -83,10 +83,7 @@ const FormsTable = () => {
         try {
             //user stands for the person using the system, users represent the list of admin users we can delegate to.
 
-            const request = {
-                user : user.id
-            }
-            const response = await api.post("/forms/", request);
+            const response = await api.get("/forms/");
             const forms = response.data;
             setFormData(forms);
             setError(null);

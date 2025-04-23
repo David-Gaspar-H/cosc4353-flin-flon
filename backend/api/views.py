@@ -266,28 +266,13 @@ class FormViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
-class UserFormsView(generics.GenericAPIView):
+class UserFormsView(generics.ListAPIView):
     serializer_class = FormSerializer
     permission_classes = [AllowAny]
 
-    def post(self, request, *args, **kwargs):
-        user_id = request.data.get("user")
-        
-        if not user_id:
-            return Response({"error": "user_id is required"}, status=400)
-
-        # Get all form IDs where this user is an approver
-        delegated_form_ids = Delegation.objects.filter(
-            approver_id=user_id
-        ).values('form_id')
-
-        # Get forms submitted by the user, excluding those where they're an approver
-        queryset = Form.objects.filter(user_id=user_id).exclude(
-            id__in=Subquery(delegated_form_ids)
-        )
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id")
+        return Form.objects.filter(user_id=user_id)
 
 class FormSubmitView(APIView):
     permission_classes = [AllowAny]
