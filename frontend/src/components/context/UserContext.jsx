@@ -26,6 +26,7 @@ export const UserProvider = ({ children }) => {
 			status: userData.status,
 			email: userData.email,
 			username: userData.username,
+			unit: userData.unit,
 		};
 
 		setUser(formattedUserData);
