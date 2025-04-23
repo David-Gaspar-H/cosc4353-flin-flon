@@ -329,6 +329,7 @@ def generate_approval_report(filters=None):
                 'status': form.status,
                 'submitted_date': form.data.get('submission_date', None),
                 'signed_date': form.signed_on,
+                'type': form.type,
                 'unit': form.user.unit.name if form.user.unit else None,
                 'approval_steps': []
             }
