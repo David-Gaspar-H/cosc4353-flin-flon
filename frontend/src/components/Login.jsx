@@ -16,6 +16,7 @@ const Login = () => {
 	const { login } = useUser();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
 	const navigate = useNavigate();
 
 	const handleLogin = async (e) => {
@@ -38,6 +39,7 @@ const Login = () => {
 			}
 		} catch (error) {
 			console.error("Login failed:", error);
+			setError("Invalid username or password.");
 		}
 	};
 
@@ -99,6 +101,16 @@ const Login = () => {
 						sx={{ marginBottom: 2 }}
 						required
 					/>
+
+					{/* Show error message on failed login */}
+					{error && (
+						<Typography
+							color="error"
+							sx={{ marginBottom: 1, fontSize: "0.75rem" }}
+						>
+							{error}
+						</Typography>
+					)}
 
 					<Button
 						variant="contained"

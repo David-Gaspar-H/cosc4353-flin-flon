@@ -15,19 +15,24 @@ import FormsTable from "./components/FormsTable.jsx";
 import Footer from "./components/Footer.jsx";
 import { Box } from "@mui/material";
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Navigate } from "react-router-dom";
 import ApprovalReport from "./components/ApprovalReport.jsx";
 
 function AppContent() {
 	const { user, logout } = useUser();
 	const location = useLocation();
 
-	const hideLayout = ["/", "/login", "/register"].includes(location.pathname);
+	const hideLayout = ["/login", "/register"].includes(location.pathname);
 	return (
 		<>
 			{!hideLayout && <ResponsiveAppBar user={user} logout={logout} />}
 			<Routes>
-				<Route path="/" element={<Login />} />
+				<Route
+					path="/"
+					element={
+						user ? <HomePage /> : <Navigate to="/login" replace />
+					}
+				/>
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
 				<Route path="/my-forms" element={<UserForms />} />
