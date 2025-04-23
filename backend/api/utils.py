@@ -316,6 +316,7 @@ def generate_approval_report(filters=None):
                 "signed_date": form.signed_on,
                 "unit": form.user.unit.name if form.user.unit else None,
                 "approval_steps": [],
+                "type": form.type,
             }
 
             # Add approval steps if they exist

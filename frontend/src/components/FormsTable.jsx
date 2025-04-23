@@ -238,7 +238,7 @@ const FormsTable = () => {
 				{user.first_name}'s Forms
 			</Typography>
 			<Typography variant="h6" sx={{ pl: 5 }}>
-				Department: {user.unit.name}
+				Department: {user.unit ? user.unit.name : 'No Department Assigned'}
 			</Typography>
 			<Box
 				sx={{
