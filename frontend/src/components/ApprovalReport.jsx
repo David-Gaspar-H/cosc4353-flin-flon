@@ -27,7 +27,8 @@ const columns = [
 const ApprovalReport = () => {
     const [data, setData] = useState({
         total_forms: 0,
-        by_status: []
+        by_status: [],
+        forms: []
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -84,7 +85,7 @@ const ApprovalReport = () => {
 
     // Calculate paginated data
     const getPaginatedData = () => {
-        return data.forms.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+        return (data.forms || []).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     };
 
     return (
@@ -308,7 +309,24 @@ const ApprovalReport = () => {
                                         <TableCell>{form.status}</TableCell>
                                         <TableCell>{form.signed_date}</TableCell>
                                         <TableCell>{form.unit}</TableCell>
-                                        <TableCell>{form.approval_steps}</TableCell>
+                                        <TableCell>
+                                            {form.approval_steps.map((step, index) => (
+                                            <Box key={index}>
+                                                <Typography variant="body2">
+                                                    <strong>Step:</strong> {step.step_number}
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    <strong>Approver:</strong> {step.approver}
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    <strong>Completed:</strong> {step.is_completed ? 'Yes' : 'No'}
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    <strong>Approved On:</strong> {step.approved_on || '—'}
+                                                </Typography>
+                                            </Box>
+                                                ))}
+                                            </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
