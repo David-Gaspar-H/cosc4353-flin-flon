@@ -1,15 +1,64 @@
 from rest_framework import serializers
 from .models import CustomUser, Form, Unit, Approver, Delegation, Workflow, WorkflowStep
+from django.utils import timezone
+from django.db.models import Q
 
 
 class FormSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source="user.id", read_only=True)
     username = serializers.CharField(source="user.username", read_only=True)
+    is_delegated = serializers.SerializerMethodField()
 
     class Meta:
         model = Form
-        fields = ["id", "user", "user_id", "username", "status", "signed_on", "data", "type"]
+        fields = [
+            "id",
+            "user",
+            "user_id",
+            "username",
+            "status",
+            "signed_on",
+            "data",
+            "type",
+            "is_delegated",
+        ]
         read_only_fields = ["id", "user_id", "username"]
+
+    # def get_is_delegated(self, form):
+    #     request = self.context.get("request", None)
+    #     if not request or not request.user or request.user.is_anonymous:
+    #         return False
+
+    #     today = timezone.now().date()
+    #     is_delegated = Delegation.objects.filter(
+    #         form=form,
+    #         delegate_to=request.user,
+    #         start_date__lte=today,
+    #         end_date__gte=today,
+    #     ).exists()
+
+    #     print(
+    #         f"[is_delegated] Form ID: {form.id} | User: {request.user.username} | Result: {is_delegated}"
+    #     )
+    #     return is_delegated
+
+    def get_is_delegated(self, form):
+        user = self.context.get("user", None)
+
+        if not user:
+            return False
+
+        today = timezone.now().date()
+
+        return (
+            Delegation.objects.filter(form=form)
+            .filter(
+                Q(approver=user) | Q(delegate_to=user),
+                start_date__lte=today,
+                end_date__gte=today,
+            )
+            .exists()
+        )
 
 
 class UnitSerializer(serializers.ModelSerializer):

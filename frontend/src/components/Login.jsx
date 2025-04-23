@@ -16,30 +16,32 @@ const Login = () => {
 	const { login } = useUser();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
 	const navigate = useNavigate();
 
-	// const handleLogin = async (e) => {
-	// 	e.preventDefault();
-	//
-	// 	try {
-	// 		const response = await api.post("/login/", {
-	// 			username: username,
-	// 			password: password,
-	// 		});
-	//
-	// 		// Store user data in context for user sessions
-	// 		login(response.data.user);
-	//
-	// 		// Handle redirect after login
-	// 		if (response.data.user.role !== "admin") {
-	// 			navigate("/");
-	// 		} else {
-	// 			navigate("/dashboard");
-	// 		}
-	// 	} catch (error) {
-	// 		console.error("Login failed:", error);
-	// 	}
-	// };
+	const handleLogin = async (e) => {
+		e.preventDefault();
+
+		try {
+			const response = await api.post("/login/", {
+				username: username,
+				password: password,
+			});
+
+			// Store user data in context for user sessions
+			login(response.data.user);
+
+			// Handle redirect after login
+			if (response.data.user.role !== "admin") {
+				navigate("/");
+			} else {
+				navigate("/dashboard");
+			}
+		} catch (error) {
+			console.error("Login failed:", error);
+			setError("Invalid username or password.");
+		}
+	};
 
 	const handleMicrosoftLogin = async () => {
 		try {
@@ -50,9 +52,9 @@ const Login = () => {
 		}
 	};
 
-	// const handleRegister = () => {
-	// 	navigate("/register");
-	// };
+	const handleRegister = () => {
+		navigate("/register");
+	};
 
 	return (
 		<Grid2
@@ -77,41 +79,51 @@ const Login = () => {
 					Login
 				</Typography>
 
-				{/*<form onSubmit={handleLogin} style={{ width: "100%" }}>*/}
-				{/*	<TextField*/}
-				{/*		label="Username"*/}
-				{/*		type="username"*/}
-				{/*		variant="outlined"*/}
-				{/*		fullWidth*/}
-				{/*		value={username}*/}
-				{/*		onChange={(e) => setUsername(e.target.value)}*/}
-				{/*		sx={{ marginBottom: 2 }}*/}
-				{/*		required*/}
-				{/*	/>*/}
+				<form onSubmit={handleLogin} style={{ width: "100%" }}>
+					<TextField
+						label="Username"
+						type="username"
+						variant="outlined"
+						fullWidth
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
+						sx={{ marginBottom: 2 }}
+						required
+					/>
 
-				{/*	<TextField*/}
-				{/*		label="Password"*/}
-				{/*		type="password"*/}
-				{/*		variant="outlined"*/}
-				{/*		fullWidth*/}
-				{/*		value={password}*/}
-				{/*		onChange={(e) => setPassword(e.target.value)}*/}
-				{/*		sx={{ marginBottom: 2 }}*/}
-				{/*		required*/}
-				{/*	/>*/}
+					<TextField
+						label="Password"
+						type="password"
+						variant="outlined"
+						fullWidth
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						sx={{ marginBottom: 2 }}
+						required
+					/>
 
-				{/*	<Button*/}
-				{/*		variant="contained"*/}
-				{/*		color="primary"*/}
-				{/*		type="submit"*/}
-				{/*		fullWidth*/}
-				{/*		sx={{ marginTop: 2 }}*/}
-				{/*	>*/}
-				{/*		Login*/}
-				{/*	</Button>*/}
-				{/*</form>*/}
+					{/* Show error message on failed login */}
+					{error && (
+						<Typography
+							color="error"
+							sx={{ marginBottom: 1, fontSize: "0.75rem" }}
+						>
+							{error}
+						</Typography>
+					)}
 
-				{/*<Divider sx={{ width: "100%", my: 2 }}>OR</Divider>*/}
+					<Button
+						variant="contained"
+						color="primary"
+						type="submit"
+						fullWidth
+						sx={{ marginTop: 2 }}
+					>
+						Login
+					</Button>
+				</form>
+
+				<Divider sx={{ width: "100%", my: 2 }}>OR</Divider>
 
 				<Button
 					variant="outlined"
@@ -130,15 +142,15 @@ const Login = () => {
 					Sign in with Microsoft
 				</Button>
 
-				{/*<Grid2 container justifyContent="center" sx={{ marginTop: 2 }}>*/}
-				{/*	<Button*/}
-				{/*		color="secondary"*/}
-				{/*		onClick={handleRegister}*/}
-				{/*		sx={{ textTransform: "none" }}*/}
-				{/*	>*/}
-				{/*		Register*/}
-				{/*	</Button>*/}
-				{/*</Grid2>*/}
+				<Grid2 container justifyContent="center" sx={{ marginTop: 2 }}>
+					<Button
+						color="secondary"
+						onClick={handleRegister}
+						sx={{ textTransform: "none" }}
+					>
+						Register
+					</Button>
+				</Grid2>
 			</Paper>
 		</Grid2>
 	);

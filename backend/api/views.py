@@ -4,7 +4,6 @@ from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from django.core.exceptions import ValidationError
 from django.views import View
-from django.db.models import Subquery
 from .models import (
     CustomUser,
     Form,
@@ -12,7 +11,8 @@ from .models import (
     Delegation,
     Workflow,
     WorkflowStep,
-    Unit
+    Unit,
+    FormApprovalStep,
 )
 from .serializers import (
     UserSerializer,
@@ -21,7 +21,7 @@ from .serializers import (
     DelegationSerializer,
     WorkflowSerializer,
     WorkflowStepSerializer,
-    UnitSerializer
+    UnitSerializer,
 )
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
@@ -30,14 +30,8 @@ import msal
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .utils import (
-    can_approve,
-    has_already_approved,
-    get_actual_approver,
-    initialize_approval_steps,
     build_approval_queue,
-    update_workflow,
     generate_approval_report,
-    get_form_audit_trail,
     get_unit_hierarchy,
     get_pending_approvals_for_user,
 )
@@ -180,15 +174,38 @@ class UserListView(generics.ListCreateAPIView):
         AllowAny
     ]  # [IsAdminUser] use this in prod, just no permission rn for easy testing
 
+
 class AdminListView(View):
 
     def get(self, request, *args, **kwargs):
-        admins = CustomUser.objects.filter(
-            role='admin'
-        ).values('id', 'username').order_by('username')
-        
-        return JsonResponse(list(admins), safe=False)
-    
+        admins = CustomUser.objects.filter(role="admin").select_related("unit")
+        data = []
+
+        for user in admins:
+            try:
+                approver = Approver.objects.get(user=user)
+                scope = approver.scope
+            except Approver.DoesNotExist:
+                scope = None
+
+            data.append(
+                {
+                    "id": user.id,
+                    "username": user.username,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "email": user.email,
+                    "role": user.role,
+                    "status": user.status,
+                    "unit": {
+                        "id": user.unit.id if user.unit else None,
+                        "name": user.unit.name if user.unit else "No Unit",
+                    },
+                }
+            )
+
+        return JsonResponse(data, safe=False)
+
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
@@ -229,13 +246,13 @@ class FormViewSet(viewsets.ModelViewSet):
         # Get user from request data
         user_id = self.request.data.get("user")
         if not user_id:
-            raise serializer.ValidationError({"user": "This field is required"})
+            raise ValidationError({"user": "This field is required"})
 
         try:
             user = CustomUser.objects.get(id=user_id)
             serializer.save(user=user)
         except CustomUser.DoesNotExist:
-            raise serializer.ValidationError({"user": "User does not exist"})
+            raise ValidationError({"user": "User does not exist"})
 
     def update(self, request, *args, **kwargs):
         # Get user from request data
@@ -273,6 +290,7 @@ class UserFormsView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs.get("user_id")
         return Form.objects.filter(user_id=user_id)
+
 
 class FormSubmitView(APIView):
     permission_classes = [AllowAny]
@@ -322,9 +340,6 @@ class FormSubmitView(APIView):
         form.status = "submitted"
         form.save()
 
-        # Initialize the approval steps based on the workflow
-        initialize_approval_steps(form)
-
         # Build the approval queue for the form
         build_approval_queue(form)
 
@@ -356,13 +371,13 @@ class FormApproveView(APIView):
             )
 
         # Check if user is an admin
-        #if not can_approve(admin_user, form):
+        # if not can_approve(admin_user, form):
         #    return Response(
         #        {"error": "You are not authorized to approve this form."},
         #        status=status.HTTP_403_FORBIDDEN,
         #    )
 
-        #if has_already_approved(admin_user, form):
+        # if has_already_approved(admin_user, form):
         #    return Response(
         #        {
         #            "error": "Approval already submitted by this approver or their delegate"
@@ -389,10 +404,10 @@ class FormApproveView(APIView):
             )
 
         # Get actual approver in case of delegation
-        #actual_approver = get_actual_approver(admin_user)
+        # actual_approver = get_actual_approver(admin_user)
 
         # If admin is not the actual approver, flag as delegated
-        #delegated = actual_approver != admin_user
+        # delegated = actual_approver != admin_user
 
         # Add admin ID to approvals list
         form.data["admin_approvals"].append(admin_id_str)
@@ -444,12 +459,12 @@ class FormRejectView(APIView):
             admin_user = CustomUser.objects.get(id=admin_id)
 
             # Check if user is an admin
-           # actual_approver = get_actual_approver(admin_user)
-            #if actual_approver != admin_user:
-            #    return Response(
-            #        {"error": "You are not authorized to reject forms"},
-            #        status=status.HTTP_403_FORBIDDEN,
-            #    )
+        # actual_approver = get_actual_approver(admin_user)
+        # if actual_approver != admin_user:
+        #    return Response(
+        #        {"error": "You are not authorized to reject forms"},
+        #        status=status.HTTP_403_FORBIDDEN,
+        #    )
         except CustomUser.DoesNotExist:
             return Response(
                 {"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
@@ -493,24 +508,43 @@ class DelegateFormView(APIView):
         delegate_to_id = request.data.get("delegate_to")
         start_date = request.data.get("start_date")
         end_date = request.data.get("end_date")
+        approver_id = request.data.get("user")
 
+        if not all([delegate_to_id, start_date, end_date, approver_id]):
+            return Response(
+                {"error": "Missing required fields."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Get the form object
         form = get_object_or_404(Form, id=form_id)
-        approver = CustomUser.objects.get(id=request.data.get("user"))
 
-        #if form.approver != approver:
-        #    return Response(
-        #        {"error": "You are not the approver."}, status=status.HTTP_403_FORBIDDEN
-        #    )
+        # Get the approver (the one doing the delegation)
+        approver = get_object_or_404(CustomUser, id=approver_id)
 
+        # Get the user being delegated to
         delegate_to = get_object_or_404(CustomUser, id=delegate_to_id)
 
+        # Create the delegation with the form reference
         Delegation.objects.create(
             approver=approver,
             delegate_to=delegate_to,
             start_date=start_date,
             end_date=end_date,
-            form = form,
+            form=form,
         )
+
+        # Create a FormApproval Step so form shows up for delegate
+        step_exists = FormApprovalStep.objects.filter(
+            form=form, approver=delegate_to
+        ).exists()
+
+        if not step_exists:
+            FormApprovalStep.objects.create(
+                form=form,
+                approver=delegate_to,
+                step_number=1,
+            )
 
         return Response({"message": "Delegation successful"}, status=status.HTTP_200_OK)
 
@@ -530,49 +564,52 @@ class DelegationViewSet(viewsets.ModelViewSet):
         # Restrict to only delegations for the current user
         return Delegation.objects.filter(approver=self.request.user)
 
+
 # Worklof viewsets
 class WorkflowViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing approval workflows.
     Enables administrators to create, update and delete workflows.
     """
+
     serializer_class = WorkflowSerializer
     permission_classes = [AllowAny]
-    
+
     def get_queryset(self):
         queryset = Workflow.objects.all()
         # Filter by unit or form type if provided
-        unit_id = self.request.query_params.get('unit')
-        form_type = self.request.query_params.get('form_type')
-        
+        unit_id = self.request.query_params.get("unit")
+        form_type = self.request.query_params.get("form_type")
+
         if unit_id:
             queryset = queryset.filter(origin_unit_id=unit_id)
         if form_type:
             queryset = queryset.filter(form_type=form_type)
-            
+
         return queryset
-    
-    @action(detail=True, methods=['get'])
+
+    @action(detail=True, methods=["get"])
     def steps(self, request, pk=None):
         """Get all steps for a specific workflow"""
         workflow = self.get_object()
-        steps = workflow.steps.all().order_by('step_number')
+        steps = workflow.steps.all().order_by("step_number")
         serializer = WorkflowStepSerializer(steps, many=True)
         return Response(serializer.data)
-    
+
 
 class WorkflowStepViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing workflow steps.
     Allows administrators to customize approval steps.
     """
+
     serializer_class = WorkflowStepSerializer
     permission_classes = [AllowAny]
-    
+
     def get_queryset(self):
         queryset = WorkflowStep.objects.all()
         # Filter by workflow if provided
-        workflow_id = self.request.query_params.get('workflow')
+        workflow_id = self.request.query_params.get("workflow")
         if workflow_id:
             queryset = queryset.filter(workflow_id=workflow_id)
         return queryset
@@ -583,19 +620,20 @@ class UnitViewSet(viewsets.ModelViewSet):
     ViewSet for managing organizational units.
     Allows administrators to define the organizational hierarchy.
     """
+
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
     permission_classes = [AllowAny]
-    
-    @action(detail=True, methods=['get'])
+
+    @action(detail=True, methods=["get"])
     def subunits(self, request, pk=None):
         """Get all direct subunits for a specific unit"""
         unit = self.get_object()
         subunits = Unit.objects.filter(parent=unit)
         serializer = UnitSerializer(subunits, many=True)
         return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'])
+
+    @action(detail=False, methods=["get"])
     def top_level(self, request):
         """Get all top-level units (those without parents)"""
         units = Unit.objects.filter(parent__isnull=True)
@@ -608,85 +646,132 @@ class UnitReportViewSet(viewsets.ViewSet):
     ViewSet for generating unit-specific reports.
     Provides reporting capabilities at both organizational and unit levels.
     """
+
     permission_classes = [AllowAny]
-    
+
     def list(self, request):
         """Generate a report for all units"""
         report_data = generate_approval_report(request.query_params)
         return Response(report_data)
-    
+
     def retrieve(self, request, pk=None):
         """Generate a report for a specific unit"""
         unit = get_object_or_404(Unit, pk=pk)
         params = request.query_params.copy()
-        params['unit'] = pk
+        params["unit"] = pk
         report_data = generate_approval_report(params)
         return Response(report_data)
 
 
 class ApprovalReportView(APIView):
     permission_classes = [AllowAny]
-    
+
     def get(self, request):
         """Generate approval reports based on query params"""
         # Extract filters from query parameters
         filters = {}
-        
-        if 'status' in request.query_params:
-            filters['status'] = request.query_params.get('status')
-            
-        if 'unit' in request.query_params:
-            filters['unit'] = request.query_params.get('unit')
-            
-        if 'form_type' in request.query_params:
-            filters['form_type'] = request.query_params.get('form_type')
-            
-        if 'date_from' in request.query_params:
-            filters['date_from'] = request.query_params.get('date_from')
-            
-        if 'date_to' in request.query_params:
-            filters['date_to'] = request.query_params.get('date_to')
-            
-        if 'include_details' in request.query_params:
-            filters['include_details'] = request.query_params.get('include_details') == 'true'
-        
+
+        if "status" in request.query_params:
+            filters["status"] = request.query_params.get("status")
+
+        if "unit" in request.query_params:
+            filters["unit"] = request.query_params.get("unit")
+
+        if "form_type" in request.query_params:
+            filters["form_type"] = request.query_params.get("form_type")
+
+        if "date_from" in request.query_params:
+            filters["date_from"] = request.query_params.get("date_from")
+
+        if "date_to" in request.query_params:
+            filters["date_to"] = request.query_params.get("date_to")
+
+        if "include_details" in request.query_params:
+            filters["include_details"] = (
+                request.query_params.get("include_details") == "true"
+            )
+
         # Generate report
         try:
             report_data = generate_approval_report(filters)
             return Response(report_data)
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PendingApprovalsView(APIView):
     permission_classes = [AllowAny]
-    
+
     def get(self, request):
         """Get all forms pending approval for the current user"""
-        user = request.user
+        user_id = request.query_params.get("user")
+
+        if not user_id:
+            return Response(
+                {"error": "User parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "User was not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
         pending_forms = get_pending_approvals_for_user(user)
-        
-        from .serializers import FormSerializer
-        serializer = FormSerializer(pending_forms, many=True)
+
+        serializer = FormSerializer(pending_forms, many=True, context={"user": user})
         return Response(serializer.data)
 
 
 class UnitHierarchyView(APIView):
     permission_classes = [AllowAny]
-    
+
     def get(self, request, unit_id=None):
         """Get unit hierarchy information"""
         if unit_id:
             # Get hierarchy for specific unit
             hierarchy = get_unit_hierarchy(unit_id)
             from .serializers import UnitSerializer
+
             serializer = UnitSerializer(hierarchy, many=True)
             return Response(serializer.data)
         else:
             # Get all top-level units (those without parents)
             top_units = Unit.objects.filter(parent__isnull=True)
             from .serializers import UnitSerializer
+
             serializer = UnitSerializer(top_units, many=True)
             return Response(serializer.data)
+
+
+class EligibleDelegatesView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, form_id):
+        user_id = request.query_params.get("user")
+        if not user_id:
+            return Response({"error": "User parameter is required"}, status=400)
+
+        try:
+            current_user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
+
+        form = get_object_or_404(Form, id=form_id)
+
+        # Get all approvers eligible for this form step
+        current_steps = FormApprovalStep.objects.filter(form=form)
+        approvers = Approver.objects.filter(unit=current_user.unit, user__role="admin")
+
+        # Exclude already assigned approvers
+        assigned_user_ids = current_steps.values_list("approver_id", flat=True)
+        available_users = [
+            a.user for a in approvers if a.user.id not in assigned_user_ids
+        ]
+
+        from .serializers import UserSerializer
+
+        serializer = UserSerializer(available_users, many=True)
+        return Response(serializer.data)

@@ -26,6 +26,7 @@ export const UserProvider = ({ children }) => {
 			status: userData.status,
 			email: userData.email,
 			username: userData.username,
+			unit: userData.unit,
 		};
 
 		setUser(formattedUserData);
@@ -47,7 +48,7 @@ export const UserProvider = ({ children }) => {
 				const storedUserData = localStorage.getItem("user_data");
 
 				// Only set user if we have both user data, type and a token
-				if (storedUserData && storedUserType && accessToken) {
+				if (storedUserData) {
 					const userData = JSON.parse(storedUserData);
 					setUser(userData);
 				} else {
