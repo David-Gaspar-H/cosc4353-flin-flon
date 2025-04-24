@@ -46,6 +46,9 @@ urlpatterns = [
         name="pending-approvals",
     ),
     path("units/hierarchy/", views.UnitHierarchyView.as_view(), name="unit-hierarchy"),
+    #added to get all units on the system
+    path("units/", views.UnitListView.as_view(), name="unit"),
+
     path(
         "units/top-level/",
         views.UnitViewSet.as_view({"get": "top_level"}),

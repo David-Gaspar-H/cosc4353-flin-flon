@@ -745,6 +745,13 @@ class UnitHierarchyView(APIView):
 
             serializer = UnitSerializer(top_units, many=True)
             return Response(serializer.data)
+        
+class UnitListView(generics.ListCreateAPIView):
+    queryset = Unit.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [
+        AllowAny
+    ]  # [IsAdminUser] use this in prod, just no permission rn for easy testing    
 
 
 class EligibleDelegatesView(APIView):

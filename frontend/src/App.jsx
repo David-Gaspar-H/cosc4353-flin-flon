@@ -17,6 +17,7 @@ import { Box } from "@mui/material";
 import React from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import ApprovalReport from "./components/ApprovalReport.jsx";
+import ModifyWorkflow from "./components/ModifyWorkflow.jsx";
 
 function AppContent() {
 	const { user, logout } = useUser();
@@ -71,6 +72,15 @@ function AppContent() {
 					element={
 						<ProtectedRoute allowedRoles={["admin"]}>
 							<ApprovalReport />
+						</ProtectedRoute>
+					}
+				/>
+
+				<Route
+					path="/modify-workflow"
+					element={
+						<ProtectedRoute allowedRoles={["admin"]}>
+							<ModifyWorkflow />
 						</ProtectedRoute>
 					}
 				/>

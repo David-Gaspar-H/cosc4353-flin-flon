@@ -22,6 +22,7 @@ const admin_pages = [
 	{ name: "Users", path: "/dashboard" },
 	{ name: "Pending Forms", path: "/admin-form" },
 	{ name: "Approval Forms Report", path: "/report" },
+	{ name: "Modify WorkFlow", path: "/modify-workflow" },
 ];
 
 function ResponsiveAppBar({ user, logout }) {

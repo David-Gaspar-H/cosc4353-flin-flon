@@ -28,7 +28,7 @@ export const UserProvider = ({ children }) => {
 			username: userData.username,
 			unit: userData.unit,
 		};
-
+		console.log(formattedUserData);
 		setUser(formattedUserData);
 		localStorage.setItem("user_data", JSON.stringify(formattedUserData)); // Store user data in local storage
 	}, []);
