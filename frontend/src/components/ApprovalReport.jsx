@@ -11,7 +11,7 @@ import {
     Alert,
     Box,
     Typography,
-    TablePagination, Grid2, Card, CardContent, TextField,
+    TablePagination, Grid2, Card, CardContent, TextField, Divider,
 } from "@mui/material";
 import api from "../services/api.js";
 
@@ -27,7 +27,8 @@ const columns = [
 const ApprovalReport = () => {
     const [data, setData] = useState({
         total_forms: 0,
-        by_status: []
+        by_status: [],
+        forms: []
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -84,7 +85,7 @@ const ApprovalReport = () => {
 
     // Calculate paginated data
     const getPaginatedData = () => {
-        return data.forms.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+        return (data.forms || []).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     };
 
     return (
@@ -305,10 +306,51 @@ const ApprovalReport = () => {
                                     >
                                         <TableCell>{form.user}</TableCell>
                                         <TableCell>{form.type}</TableCell>
-                                        <TableCell>{form.status}</TableCell>
+                                        <TableCell
+                                            sx={{
+                                                fontWeight: "bold",
+                                                color:
+                                                    form.status === "draft"
+                                                        ? "orange"
+                                                        : form.status ===
+                                                        "accepted"
+                                                            ? "green"
+                                                            : form.status ===
+                                                            "submitted"
+                                                                ? "blue"
+                                                                : "red",
+                                            }}>
+                                            {form.status}
+                                        </TableCell>
                                         <TableCell>{form.signed_date}</TableCell>
                                         <TableCell>{form.unit}</TableCell>
-                                        <TableCell>{form.approval_steps}</TableCell>
+                                        <TableCell>
+                                            {form.approval_steps.map((step, index) => (
+                                                <Box key={index}>
+                                                    {/*<Typography variant={step.approver === "admin9 Doe"? "h6" :"body2"}>*/}
+                                                    {/*    <strong>Step:</strong> {step.step_number}*/}
+                                                    {/*</Typography>*/}
+                                                    <Typography
+                                                        variant={step.approver === "admin9 Doe" ? "body1" : "body2"}
+                                                        color={step.approver === "admin9 Doe" ? "primary" : "textPrimary"}>
+                                                        <strong>Approver:</strong> {step.approver}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant={step.approver === "admin9 Doe" ? "body1" : "body2"}
+                                                        color={step.approver === "admin9 Doe" ? "primary" : "textPrimary"}>
+                                                        <strong>Completed:</strong> {step.is_completed ? 'Yes' : 'No'}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant={step.approver === "admin9 Doe" ? "body1" : "body2"}
+                                                        color={step.approver === "admin9 Doe" ? "primary" : "textPrimary"}>
+                                                        <strong>Approved On:</strong> {step.approved_on || '—'}
+                                                    </Typography>
+                                                    {form.approval_steps.length > 1 && index < form.approval_steps.length - 1 && (
+                                                        <Divider sx={{my: 1}}/>
+                                                    )}
+                                                </Box>
+                                            ))}
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
