@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from django.core.exceptions import ValidationError
+import json
 from django.views import View
 from .models import (
     CustomUser,
@@ -35,6 +36,8 @@ from .utils import (
     generate_approval_report,
     get_unit_hierarchy,
     get_pending_approvals_for_user,
+    update_workflow
+
 )
 import datetime
 
@@ -614,6 +617,24 @@ class WorkflowStepViewSet(viewsets.ModelViewSet):
         if workflow_id:
             queryset = queryset.filter(workflow_id=workflow_id)
         return queryset
+    
+#added to modify the workflow and steps
+
+class updateWorkflowView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, workflow_id):
+
+        try:
+            workflow = update_workflow(workflow_id, request.data)
+
+            return JsonResponse({"message": "Workflow updated successfully", "workflow_id": workflow.id})
+        except ValidationError as e:
+            return JsonResponse({"error": str(e)}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": "Something went wrong", "details": str(e)}, status=500)
+
 
 
 class UnitViewSet(viewsets.ModelViewSet):
@@ -751,7 +772,10 @@ class UnitListView(generics.ListCreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [
         AllowAny
-    ]  # [IsAdminUser] use this in prod, just no permission rn for easy testing    
+    ]  # [IsAdminUser] use this in prod, just no permission rn for easy testing 
+
+
+
 
 
 class EligibleDelegatesView(APIView):

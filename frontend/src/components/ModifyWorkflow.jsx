@@ -36,6 +36,7 @@ function ModifyWorkflow() {
 	const [loading, setLoading] = useState(true);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [selectedWorkflow, setSelectedWorkflow] = useState(null);
+	const [defaultSteps, setDefaultSteps] = useState([]);
 
 	const fetchWorkflows = async () => {
 		const { data } = await api.get("/workflows/");
@@ -64,6 +65,7 @@ function ModifyWorkflow() {
 
 	const handleEditClick = (workflow) => {
 		setSelectedWorkflow(workflow);
+		setDefaultSteps(JSON.parse(JSON.stringify(workflow.steps))); // deep clone
 		setDialogOpen(true);
 	};
 
@@ -76,6 +78,24 @@ function ModifyWorkflow() {
         const match = units.find(unit => unit.id === targetId);
         return match ? match.name : null;
     };
+
+	const handleSaveWorkflow = async () => {
+		try {
+			const response = await api.post("workflow/steps/update/", {
+				workflow_id: selectedWorkflow.id,
+				steps: selectedWorkflow.steps.map((step, index) => ({
+					step_number: index + 1,
+					approver_unit: step.approver_unit,
+					is_optional: step.is_optional,
+					approvals_required: step.approvals_required,
+				})),
+			});
+			console.log("Workflow updated:", response.data);
+		} catch (error) {
+			console.error("Failed to save workflow steps:", error);
+		}
+	};
+
 
 
 	return (
@@ -229,15 +249,49 @@ function ModifyWorkflow() {
                     >
                     + Add Step
                     </Button>
+					<Button
+						variant="outlined"
+						fullWidth
+						color="secondary"
+						sx={{ mt: 2 }}
+						onClick={() => {
+							setSelectedWorkflow({ ...selectedWorkflow, steps: JSON.parse(JSON.stringify(defaultSteps)) });
+						}}
+					>
+						🔁 Back to Default
+					</Button>
 
 					<DialogActions>
 						<Button onClick={handleDialogClose}>Cancel</Button>
-						<Button variant="contained" onClick={() => {
-							// Handle save logic here
-							handleDialogClose();
-						}}>
+						<Button
+							variant="contained"
+							onClick={async () => {
+								try {
+								await api.post(`/workflows/${selectedWorkflow.id}/update/`, {
+									id: selectedWorkflow.id,
+									name: selectedWorkflow.name,
+									form_type: selectedWorkflow.form_type,
+									origin_unit: selectedWorkflow.origin_unit,
+									is_active: selectedWorkflow.is_active,
+									steps: selectedWorkflow.steps.map((step, index) => ({
+									id: step.id,  // Optional for backend insert
+									step_number: index + 1,
+									role_required: step.role_required || "admin",  // Or your logic
+									approver_unit: step.approver_unit,
+									is_optional: step.is_optional,
+									approvals_required: step.approvals_required,
+									})),
+								});
+
+								handleDialogClose();
+								} catch (error) {
+								console.error("Failed to update workflow:", error);
+								}
+							}}
+							>
 							Save
-						</Button>
+							</Button>
+
 					</DialogActions>
                     
 				</Dialog>

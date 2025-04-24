@@ -14,6 +14,7 @@ from .views import (
     FormApproveView,
     FormRejectView,
     FormDetailReportView,
+    updateWorkflowView
 )
 
 router = DefaultRouter()
@@ -48,6 +49,8 @@ urlpatterns = [
     path("units/hierarchy/", views.UnitHierarchyView.as_view(), name="unit-hierarchy"),
     #added to get all units on the system
     path("units/", views.UnitListView.as_view(), name="unit"),
+    #added to update the rules that the admins modify
+    path('workflows/<int:workflow_id>/update/', updateWorkflowView.as_view(), name='update-workflow'),
 
     path(
         "units/top-level/",
