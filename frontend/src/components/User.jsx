@@ -90,9 +90,10 @@ const UserForm = ({ clearSelection, isCreating, selectedUser }) => {
 			container
 			justifyContent="center"
 			alignItems="center"
-			sx={{ height: "100vh" }}
+			sx={{ height: '100vh', overflow: 'auto'}}
+			
 		>
-			<Paper sx={{ width: "500px", padding: 3 }}>
+			<Paper sx={{ width: "500px", padding: 3}}>
 				<Typography variant="h4" gutterBottom>
 					{isCreating ? "Create User" : "Edit User"}
 				</Typography>
