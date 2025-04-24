@@ -1,5 +1,14 @@
 from rest_framework import serializers
-from .models import CustomUser, Form, Unit, Approver, Delegation, Workflow, WorkflowStep
+from .models import (
+    CustomUser,
+    Form,
+    Unit,
+    Approver,
+    Delegation,
+    Workflow,
+    WorkflowStep,
+    FormApprovalStep,
+)
 from django.utils import timezone
 from django.db.models import Q
 
@@ -187,3 +196,24 @@ class WorkflowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Workflow
         fields = ["id", "name", "form_type", "origin_unit", "is_active", "steps"]
+
+
+class FormApprovalStepSerializer(serializers.ModelSerializer):
+    approver = serializers.StringRelatedField()
+    unit = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FormApprovalStep
+        fields = ["step_number", "approver", "unit", "is_completed", "approved_on"]
+
+    def get_unit(self, obj):
+        return obj.approver.unit.name if obj.approver.unit else None
+
+
+class FormDetailReportSerializer(serializers.ModelSerializer):
+    submitted_by = serializers.StringRelatedField(source="user")
+    approval_steps = FormApprovalStepSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Form
+        fields = ["id", "type", "status", "signed_on", "submitted_by", "approval_steps"]

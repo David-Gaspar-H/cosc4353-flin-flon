@@ -22,6 +22,7 @@ from .serializers import (
     WorkflowSerializer,
     WorkflowStepSerializer,
     UnitSerializer,
+    FormDetailReportSerializer,
 )
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
@@ -775,3 +776,10 @@ class EligibleDelegatesView(APIView):
 
         serializer = UserSerializer(available_users, many=True)
         return Response(serializer.data)
+
+
+class FormDetailReportView(generics.RetrieveAPIView):
+    permission_classes = [AllowAny]
+
+    queryset = Form.objects.all()
+    serializer_class = FormDetailReportSerializer

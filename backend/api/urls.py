@@ -13,8 +13,7 @@ from .views import (
     FormSubmitView,
     FormApproveView,
     FormRejectView,
-    ApproverViewSet,
-    WorkflowStepViewSet,
+    FormDetailReportView,
 )
 
 router = DefaultRouter()
@@ -67,4 +66,5 @@ urlpatterns = [
         views.EligibleDelegatesView.as_view(),
         name="eligible-delegates",
     ),
+    path("forms/<int:pk>/report/", FormDetailReportView.as_view(), name="form-report"),
 ]
